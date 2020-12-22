@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/nhap3.dir/nhap3.cpp.o  -o nhap3 
