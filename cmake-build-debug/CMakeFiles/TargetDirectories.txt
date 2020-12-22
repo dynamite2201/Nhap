@@ -1,4 +1,0 @@
-/home/alex/CLionProjects/Nhap/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/alex/CLionProjects/Nhap/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/alex/CLionProjects/Nhap/cmake-build-debug/CMakeFiles/nhap1.dir
-/home/alex/CLionProjects/Nhap/cmake-build-debug/CMakeFiles/Nhap.dir

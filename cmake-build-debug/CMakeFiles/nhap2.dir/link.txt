@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/nhap2.dir/nhap2.cpp.o  -o nhap2 
