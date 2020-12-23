@@ -20,7 +20,7 @@ void primeFactors(int q)
 /* Driver code */
 int main()
 {
-    int n = 12;
+    int n = 7;
     primeFactors(n);
     return 0;
 }
