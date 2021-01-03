@@ -155,98 +155,163 @@ void _print(T t, V... v) {
 
 
 void run_case(int test) {
-    int number[10] = {0};
-    int characters[26] = {0};
-    string S;
-    cin >> S;
-//    cin.ignore();
-//    getline(cin, S);
-    string res = "";
+    int res = 0;
+    int N;
+    cin >> N;
+    int a[N];
+    int b[N];
+    string S1, S2;
+    cin >> S1 >> S2;
+    for (int i = 0; i < N; ++i) {
+        if (S1[i] == '.') {
+            a[i] = 0;
+        } else {
+            a[i] = 1;
+        }
+        if (S2[i] == '.') {
+            b[i] = 0;
+        } else {
+            b[i] = 1;
+        }
+    }
+//    for (int i = 0; i < N; ++i) {
+//        cout << a[i] << " ";
+//    }
+//    cout << "\n";
+//    for (int i = 0; i < N; ++i) {
+//        cout << b[i] << " ";
+//    }
 
-    db(S);
-    for (int i = 0; i < S.length(); ++i) {
-        characters[S[i] - 'A']++;
-    }
 
-    while (characters['Z' - 'A'] > 0) {
-        characters['Z' - 'A']--;
-        characters['E' - 'A']--;
-        characters['R' - 'A']--;
-        characters['O' - 'A']--;
-        number[0]++;
+    for (int i = 0; i < N; ++i) {
+        if (a[i] == 0) {
+            if (i == 0) {
+                if (a[i + 1] == 1) {
+                    db(i);
+                    res++;
+                    a[i] = 1;
+                    for (int j = 0; j < N; ++j) {
+                        if (b[j] == 1)
+                            break;
+                        b[j] = 1;
+                    }
+                }
+            } else if (i == N - 1) {
+                if (a[i - 1] == 1) {
+                    db(i);
+                    res++;
+                    a[i] = 1;
+                    for (int j = N - 1; j >= 0; j--) {
+                        if (b[j] == 1)
+                            break;
+                        b[j] = 1;
+                    }
+                }
+            } else {
+                if (a[i - 1] == 1 and a[i + 1] == 1) {
+                    db(i);
+                    res++;
+                    a[i] = 1;
+                    if (b[i] == 0) {
+                        b[i] = 1;
+                        for (int j = i + 1; j < N; ++j) {
+                            if (b[j] == 1)
+                                break;
+                            b[j] = 1;
+                        }
+                        for (int j = i - 1; j >= 0; j--) {
+                            if (b[j] == 1)
+                                break;
+                            b[j] = 1;
+                        }
+                    }
+                }
+            }
+        }
     }
-    while (characters['W' - 'A'] > 0) {
-        characters['T' - 'A']--;
-        characters['W' - 'A']--;
-        characters['O' - 'A']--;
-        number[2]++;
+//    cout << "\n";
+//    cout << res << "\n";
+    for (int i = 0; i < N; ++i) {
+        if (b[i] == 0) {
+            db(i);
+            if (i == 0) {
+                if (b[i + 1] == 1) {
+                    db(i);
+                    res++;
+                    b[i] = 1;
+                    for (int j = 0; j < N; ++j) {
+                        if (a[j] == 1)
+                            break;
+                        a[j] = 1;
+                    }
+                }
+            } else if (i == N - 1) {
+                if (b[i - 1] == 1) {
+                    db(i);
+                    res++;
+                    b[i] = 1;
+                    for (int j = N - 1; j >= 0; j--) {
+                        if (a[j] == 1)
+                            break;
+                        a[j] = 1;
+                    }
+                }
+            } else {
+                if (b[i - 1] == 1 and b[i + 1] == 1) {
+                    db(i);
+                    res++;
+                    b[i] = 1;
+                    if (a[i] == 0) {
+                        a[i] = 1;
+                        for (int j = i + 1; j < N; ++j) {
+                            if (a[j] == 1)
+                                break;
+                            a[j] = 1;
+                        }
+                        for (int j = i - 1; j >= 0; j--) {
+                            if (a[j] == 1)
+                                break;
+                            a[j] = 1;
+                        }
+                    }
+                }
+            }
+        }
     }
-    while (characters['X' - 'A'] > 0) {
-        characters['S' - 'A']--;
-        characters['I' - 'A']--;
-        characters['X' - 'A']--;
-        number[6]++;
+//    cout << "\n";
+//    cout << res << "\n";
+    for (int i = 0; i < N; ++i) {
+        if (a[i] == 0) {
+            int temp = i;
+            while (a[temp] == 0) {
+                temp++;
+            }
+            i = temp--;
+            res++;
+        }
     }
-    while (characters['G' - 'A'] > 0) {
-        characters['E' - 'A']--;
-        characters['I' - 'A']--;
-        characters['G' - 'A']--;
-        characters['H' - 'A']--;
-        characters['T' - 'A']--;
-        number[8]++;
-    }
-    while (characters['U' - 'A'] > 0) {
-        characters['F' - 'A']--;
-        characters['O' - 'A']--;
-        characters['U' - 'A']--;
-        characters['R' - 'A']--;
-        number[4]++;
-    }
-    while (characters['F' - 'A'] > 0) {
-        characters['F' - 'A']--;
-        characters['I' - 'A']--;
-        characters['V' - 'A']--;
-        characters['E' - 'A']--;
-        number[5]++;
-    }
-    while (characters['V' - 'A'] > 0) {
-        characters['V' - 'A']--;
-        characters['S' - 'A']--;
-        characters['E' - 'A']--;
-        characters['E' - 'A']--;
-        characters['N' - 'A']--;
-        number[7]++;
-    }
-    while (characters['R' - 'A'] > 0) {
-        characters['R' - 'A']--;
-        characters['T' - 'A']--;
-        characters['H' - 'A']--;
-        characters['E' - 'A']--;
-        characters['E' - 'A']--;
-        number[3]++;
-    }
-    while (characters['O' - 'A'] > 0) {
-        characters['O' - 'A']--;
-        characters['N' - 'A']--;
-        characters['E' - 'A']--;
-        number[1]++;
-    }
-    while (characters['I' - 'A'] > 0) {
-        characters['I' - 'A']--;
-        characters['N' - 'A']--;
-        characters['N' - 'A']--;
-        characters['E' - 'A']--;
-        number[9]++;
-    }
-    for (int i = 0; i < 10; ++i) {
-        while (number[i] > 0) {
-            res += to_string(i);
-            number[i]--;
+    for (int i = 0; i < N; ++i) {
+        if (b[i] == 0) {
+            int temp = i;
+            while (b[temp] == 0) {
+                temp++;
+            }
+            i = temp--;
+            res++;
         }
     }
 
+//    cout << "\n";
+//    cout << "AFTER" << "\n";
+//    for (int i = 0; i < N; ++i) {
+//        cout << a[i] << " ";
+//    }
+//    cout << "\n";
+//    for (int i = 0; i < N; ++i) {
+//        cout << b[i] << " ";
+//    }
 
-//    cout << "Case #" << test + 1 << ": " << "Too Bad" << "\n";
+//    cout << "\n";
     cout << "Case #" << test + 1 << ": " << res << "\n";
 }
 
@@ -254,8 +319,8 @@ int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-//    freopen("input.txt", "r", stdin);
-//    freopen("output.txt", "w", stdout);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
 
     int tests;
     cin >> tests;
