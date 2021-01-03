@@ -152,94 +152,48 @@ void _print(T t, V... v) {
 #else
 #define db(x...)
 #endif
-
-struct Level {
-    int ai;
-    int bi;
-    int id;
-};
-
-bool compare(const Level &x, const Level &y) {
-    if (x.ai != y.ai) {
-        return x.ai > y.ai;
-    }
-    return x.bi > y.bi;
-}
+int a[2002][1000];
 
 void run_case(int test) {
     int N;
     cin >> N;
-    vector<Level> g;
+    vector<pair<int, int>> b;
+    vector<int> cntPlay;
     for (int i = 0; i < N; ++i) {
         int ai, bi;
         cin >> ai >> bi;
-        g.push_back(Level({ai, bi, i}));
+        b.push_back(make_pair(bi, i));
+        a[bi][i] = ai;
+        cntPlay.push_back(0);
     }
+    sort(all(b), greater<>());
+    db(b, cntPlay);
+    int res = 0, times = 0, cntPlays = 0;
 
-    sort(all(g), compare);
-    for (auto i = g.begin(); i != g.end(); i++) {
-        cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
-    }
-    cout << " SOLVE \n";
-
-    int res = 0;
-    int times = 0;
-    int cntPlays = 0;
-    int step = 0;
-    int loop = 0;
-
-    while (cntPlays < 2 * N and loop < 2 * N) {
-        loop++;
-        step = 0;
-        while (step < N) {
-            cout << res << "\n";
-            if (res >= g[step].bi) {
-                if (g[step].ai == 10000) {// da thuc hien 1 lan
-                    times++;
-                    cntPlays += 2; // hoan thanh
-                    res += 1; // thuong 1 sao
-                    g[step].bi = 10000;
-                    db(times, cntPlays, res);
-                    for (auto i = g.begin(); i != g.end(); i++) {
-                        cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
-                    }
-                } else {
-                    times++;
-                    cntPlays += 2; // hoanthanh
-                    res += 2; // thuong2
-                    g[step].bi = 10000;
-                    g[step].ai = 10000;
-                    db(times, cntPlays, res);
-                    for (auto i = g.begin(); i != g.end(); i++) {
-                        cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
-                    }
-                }
+    for (int i = 0; i < 2 * N; ++i) {
+        for (int j = N - 1; j >= 0; j--) {
+            if ((res > b[0].first and cntPlays == 2 * N) or res < b[j].first)
+                break;
+            if (res >= b[j].first and cntPlay[b[j].second] != 2) {
+                res += ((cntPlay[b[j].second] == 0) ? 2 : 1);
+                cntPlay[b[j].second] = 2;
+                times++;
+                cntPlays += 2;
             }
-            step++;
+            db(res, times, cntPlay);
         }
 
-
-        for (int i = 0; i < N; ++i) {
-            if (res >= g[i].ai) {
+        for (int j = 0; j < N; ++j) {
+            if (res >= a[b[j].first][b[j].second] and cntPlay[b[j].second] == 0) {
                 times++;
-                res += 1; // thuong1
-                g[i].ai = 10000; // thuc hien 1 lan dau
-                db(times, cntPlays, res);
-                for (auto i = g.begin(); i != g.end(); i++) {
-                    cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
-                }
+                res += 1;
+                cntPlay[b[j].second] = 1;
+                db(res, times, cntPlay);
                 break;
             }
         }
-
     }
 
-//    int isFull = 0;
-//    for (int i = 0; i < N; ++i) {
-//        if (cntPlay[a[i].second] == 2)
-//            isFull++;
-//    }
-//
     if (cntPlays != 2 * N) {
         cout << "Case #" << test + 1 << ": " << "Too Bad" << "\n";
     } else {
