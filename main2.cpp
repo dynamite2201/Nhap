@@ -152,61 +152,110 @@ void _print(T t, V... v) {
 #else
 #define db(x...)
 #endif
-int a[2002][1000];
+
 
 void run_case(int test) {
-    int N;
-    cin >> N;
-    vector<pair<int, int>> b;
-    vector<int> cntPlay;
-    for (int i = 0; i < N; ++i) {
-        int ai, bi;
-        cin >> ai >> bi;
-        b.push_back(make_pair(bi, i));
-        a[bi][i] = ai;
-        cntPlay.push_back(0);
-    }
-    sort(all(b), greater<>());
-    db(b, cntPlay);
-    int res = 0, times = 0, cntPlays = 0;
+    int number[10] = {0};
+    int characters[26] = {0};
+    string S;
+    cin >> S;
+//    cin.ignore();
+//    getline(cin, S);
+    string res = "";
 
-    for (int i = 0; i < 2 * N; ++i) {
-        for (int j = N - 1; j >= 0; j--) {
-            if ((res > b[0].first and cntPlays == 2 * N) or res < b[j].first)
-                break;
-            if (res >= b[j].first and cntPlay[b[j].second] != 2) {
-                res += ((cntPlay[b[j].second] == 0) ? 2 : 1);
-                cntPlay[b[j].second] = 2;
-                times++;
-                cntPlays += 2;
-            }
-            db(res, times, cntPlay);
+    db(S);
+    for (int i = 0; i < S.length(); ++i) {
+        characters[S[i] - 'A']++;
+    }
+
+    while (characters['Z' - 'A'] > 0) {
+        characters['Z' - 'A']--;
+        characters['E' - 'A']--;
+        characters['R' - 'A']--;
+        characters['O' - 'A']--;
+        number[0]++;
+    }
+    while (characters['W' - 'A'] > 0) {
+        characters['T' - 'A']--;
+        characters['W' - 'A']--;
+        characters['O' - 'A']--;
+        number[2]++;
+    }
+    while (characters['X' - 'A'] > 0) {
+        characters['S' - 'A']--;
+        characters['I' - 'A']--;
+        characters['X' - 'A']--;
+        number[6]++;
+    }
+    while (characters['G' - 'A'] > 0) {
+        characters['E' - 'A']--;
+        characters['I' - 'A']--;
+        characters['G' - 'A']--;
+        characters['H' - 'A']--;
+        characters['T' - 'A']--;
+        number[8]++;
+    }
+    while (characters['U' - 'A'] > 0) {
+        characters['F' - 'A']--;
+        characters['O' - 'A']--;
+        characters['U' - 'A']--;
+        characters['R' - 'A']--;
+        number[4]++;
+    }
+    while (characters['F' - 'A'] > 0) {
+        characters['F' - 'A']--;
+        characters['I' - 'A']--;
+        characters['V' - 'A']--;
+        characters['E' - 'A']--;
+        number[5]++;
+    }
+    while (characters['V' - 'A'] > 0) {
+        characters['V' - 'A']--;
+        characters['S' - 'A']--;
+        characters['E' - 'A']--;
+        characters['E' - 'A']--;
+        characters['N' - 'A']--;
+        number[7]++;
+    }
+    while (characters['R' - 'A'] > 0) {
+        characters['R' - 'A']--;
+        characters['T' - 'A']--;
+        characters['H' - 'A']--;
+        characters['E' - 'A']--;
+        characters['E' - 'A']--;
+        number[3]++;
+    }
+    while (characters['O' - 'A'] > 0) {
+        characters['O' - 'A']--;
+        characters['N' - 'A']--;
+        characters['E' - 'A']--;
+        number[1]++;
+    }
+    while (characters['I' - 'A'] > 0) {
+        characters['I' - 'A']--;
+        characters['N' - 'A']--;
+        characters['N' - 'A']--;
+        characters['E' - 'A']--;
+        number[9]++;
+    }
+    for (int i = 0; i < 10; ++i) {
+        while (number[i] > 0) {
+            res += to_string(i);
+            number[i]--;
         }
-
-        for (int j = 0; j < N; ++j) {
-            if (res >= a[b[j].first][b[j].second] and cntPlay[b[j].second] == 0) {
-                times++;
-                res += 1;
-                cntPlay[b[j].second] = 1;
-                db(res, times, cntPlay);
-                break;
-            }
-        }
     }
 
-    if (cntPlays != 2 * N) {
-        cout << "Case #" << test + 1 << ": " << "Too Bad" << "\n";
-    } else {
-        cout << "Case #" << test + 1 << ": " << times << "\n";
-    }
+
+//    cout << "Case #" << test + 1 << ": " << "Too Bad" << "\n";
+    cout << "Case #" << test + 1 << ": " << res << "\n";
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
 
     int tests;
     cin >> tests;
