@@ -153,28 +153,112 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-void run_case() {
-    int N, S, p;
+struct Level {
+    int ai;
+    int bi;
+    int id;
+};
+
+bool compare(const Level &x, const Level &y) {
+    if (x.ai != y.ai) {
+        return x.ai > y.ai;
+    }
+    return x.bi > y.bi;
+}
+
+void run_case(int test) {
+    int N;
     cin >> N;
-    cin >> S;
-    cin >> p;
-    int a[N];
+    vector<Level> g;
     for (int i = 0; i < N; ++i) {
-        cin >> a[i];
+        int ai, bi;
+        cin >> ai >> bi;
+        g.push_back(Level({ai, bi, i}));
     }
 
+    sort(all(g), compare);
+    for (auto i = g.begin(); i != g.end(); i++) {
+        cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
+    }
+    cout << " SOLVE \n";
+
+    int res = 0;
+    int times = 0;
+    int cntPlays = 0;
+    int step = 0;
+    int loop = 0;
+
+    while (cntPlays < 2 * N and loop < 2 * N) {
+        loop++;
+        step = 0;
+        while (step < N) {
+            cout << res << "\n";
+            if (res >= g[step].bi) {
+                if (g[step].ai == 10000) {// da thuc hien 1 lan
+                    times++;
+                    cntPlays += 2; // hoan thanh
+                    res += 1; // thuong 1 sao
+                    g[step].bi = 10000;
+                    db(times, cntPlays, res);
+                    for (auto i = g.begin(); i != g.end(); i++) {
+                        cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
+                    }
+                } else {
+                    times++;
+                    cntPlays += 2; // hoanthanh
+                    res += 2; // thuong2
+                    g[step].bi = 10000;
+                    g[step].ai = 10000;
+                    db(times, cntPlays, res);
+                    for (auto i = g.begin(); i != g.end(); i++) {
+                        cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
+                    }
+                }
+            }
+            step++;
+        }
+
+
+        for (int i = 0; i < N; ++i) {
+            if (res >= g[i].ai) {
+                times++;
+                res += 1; // thuong1
+                g[i].ai = 10000; // thuc hien 1 lan dau
+                db(times, cntPlays, res);
+                for (auto i = g.begin(); i != g.end(); i++) {
+                    cout << "[" << i->ai << " " << i->bi << " " << i->id << "] " << "\n";
+                }
+                break;
+            }
+        }
+
+    }
+
+//    int isFull = 0;
+//    for (int i = 0; i < N; ++i) {
+//        if (cntPlay[a[i].second] == 2)
+//            isFull++;
+//    }
+//
+    if (cntPlays != 2 * N) {
+        cout << "Case #" << test + 1 << ": " << "Too Bad" << "\n";
+    } else {
+        cout << "Case #" << test + 1 << ": " << times << "\n";
+    }
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-//    freopen("input.txt", "r", stdin);
-//    freopen("output.txt", "w", stdout);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
 
     int tests;
     cin >> tests;
-
-    while (tests-- > 0)
-        run_case();
+    int i = 0;
+    while (i < tests) {
+        run_case(i);
+        i++;
+    }
 }
