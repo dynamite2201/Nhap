@@ -155,164 +155,84 @@ void _print(T t, V... v) {
 
 
 void run_case(int test) {
-    int res = 0;
+//    db("TEST", test + 1);
     int N;
     cin >> N;
-    int a[N];
-    int b[N];
-    string S1, S2;
-    cin >> S1 >> S2;
+    int a[N + 4];
     for (int i = 0; i < N; ++i) {
-        if (S1[i] == '.') {
-            a[i] = 0;
-        } else {
-            a[i] = 1;
-        }
-        if (S2[i] == '.') {
-            b[i] = 0;
-        } else {
-            b[i] = 1;
-        }
+        cin >> a[i];
     }
+    a[N] = 200;
+    a[N + 1] = 200;
+    a[N + 2] = 200;
+    a[N + 3] = 200;
 //    for (int i = 0; i < N; ++i) {
 //        cout << a[i] << " ";
 //    }
 //    cout << "\n";
-//    for (int i = 0; i < N; ++i) {
-//        cout << b[i] << " ";
-//    }
-
-
-    for (int i = 0; i < N; ++i) {
-        if (a[i] == 0) {
-            if (i == 0) {
-                if (a[i + 1] == 1) {
-                    db(i);
-                    res++;
-                    a[i] = 1;
-                    for (int j = 0; j < N; ++j) {
-                        if (b[j] == 1)
-                            break;
-                        b[j] = 1;
-                    }
-                }
-            } else if (i == N - 1) {
-                if (a[i - 1] == 1) {
-                    db(i);
-                    res++;
-                    a[i] = 1;
-                    for (int j = N - 1; j >= 0; j--) {
-                        if (b[j] == 1)
-                            break;
-                        b[j] = 1;
-                    }
-                }
-            } else {
-                if (a[i - 1] == 1 and a[i + 1] == 1) {
-                    db(i);
-                    res++;
-                    a[i] = 1;
-                    if (b[i] == 0) {
-                        b[i] = 1;
-                        for (int j = i + 1; j < N; ++j) {
-                            if (b[j] == 1)
-                                break;
-                            b[j] = 1;
-                        }
-                        for (int j = i - 1; j >= 0; j--) {
-                            if (b[j] == 1)
-                                break;
-                            b[j] = 1;
-                        }
-                    }
+    int added = 0;
+    int index = 0;
+    int cnt4;
+    while (index < N) {
+        db(index, added);
+        cnt4 = 0;
+        while (a[index] < a[index + 1] and a[index + 1] - a[index] <= 10) {
+            if (cnt4 == 3) {
+                break;
+            }
+            cnt4++;
+            index++;
+        }
+        db(cnt4);
+        if (cnt4 == 0) { // 2 TH
+            if (a[index + 1] <= a[index] or a[index + 1] - a[index] > 30) {
+                added += 3;
+                index++;
+                continue;
+            }
+            if (a[index + 1] - a[index] <= 30 and a[index + 1] - a[index] > 20) {
+                added += 2;
+                index += 2;
+                continue;
+            }
+            if (a[index + 1] - a[index] <= 20 and a[index + 1] - a[index] > 10) {
+                if (a[index + 1] < a[index + 2] and a[index + 2] - a[index + 1] <= 10) {
+                    added += 1;
+                    index += 3;
+                    continue;
+                } else {
+                    added += 2;
+                    index += 2;
+                    continue;
                 }
             }
         }
-    }
-//    cout << "\n";
-//    cout << res << "\n";
-    for (int i = 0; i < N; ++i) {
-        if (b[i] == 0) {
-            db(i);
-            if (i == 0) {
-                if (b[i + 1] == 1) {
-                    db(i);
-                    res++;
-                    b[i] = 1;
-                    for (int j = 0; j < N; ++j) {
-                        if (a[j] == 1)
-                            break;
-                        a[j] = 1;
-                    }
-                }
-            } else if (i == N - 1) {
-                if (b[i - 1] == 1) {
-                    db(i);
-                    res++;
-                    b[i] = 1;
-                    for (int j = N - 1; j >= 0; j--) {
-                        if (a[j] == 1)
-                            break;
-                        a[j] = 1;
-                    }
-                }
-            } else {
-                if (b[i - 1] == 1 and b[i + 1] == 1) {
-                    db(i);
-                    res++;
-                    b[i] = 1;
-                    if (a[i] == 0) {
-                        a[i] = 1;
-                        for (int j = i + 1; j < N; ++j) {
-                            if (a[j] == 1)
-                                break;
-                            a[j] = 1;
-                        }
-                        for (int j = i - 1; j >= 0; j--) {
-                            if (a[j] == 1)
-                                break;
-                            a[j] = 1;
-                        }
-                    }
-                }
+
+        if (cnt4 == 1) {
+            if (a[index + 1] <= a[index] or a[index + 1] - a[index] > 20) {
+                added += 2;
+                index++;
+                continue;
+            }
+            if (a[index + 1] - a[index] <= 20 and a[index + 1] - a[index] > 10) {
+                added += 1;
+                index += 2;
+                continue;
             }
         }
-    }
-//    cout << "\n";
-//    cout << res << "\n";
-    for (int i = 0; i < N; ++i) {
-        if (a[i] == 0) {
-            int temp = i;
-            while (a[temp] == 0) {
-                temp++;
-            }
-            i = temp--;
-            res++;
+
+        if (cnt4 == 2) {
+            added += 1;
+            index += 1;
+            continue;
         }
-    }
-    for (int i = 0; i < N; ++i) {
-        if (b[i] == 0) {
-            int temp = i;
-            while (b[temp] == 0) {
-                temp++;
-            }
-            i = temp--;
-            res++;
+        if (cnt4 == 3) {
+            index += 1;
+            continue;
         }
     }
 
-//    cout << "\n";
-//    cout << "AFTER" << "\n";
-//    for (int i = 0; i < N; ++i) {
-//        cout << a[i] << " ";
-//    }
-//    cout << "\n";
-//    for (int i = 0; i < N; ++i) {
-//        cout << b[i] << " ";
-//    }
-
-//    cout << "\n";
-    cout << "Case #" << test + 1 << ": " << res << "\n";
+    cout << "Case #" << test + 1 << ": " << added << "\n";
 }
 
 int main() {
