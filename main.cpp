@@ -154,15 +154,38 @@ void _print(T t, V... v) {
 #endif
 
 void run_case() {
-    int N, S, p;
-    cin >> N;
-    cin >> S;
-    cin >> p;
-    int a[N];
-    for (int i = 0; i < N; ++i) {
-        cin >> a[i];
+    long long int n, m;
+    cin >> n >> m;
+    long long int k[n + 1];
+    long long int c[m + 1];
+    for (long long int i = 1; i <= n; ++i) {
+        cin >> k[i];
     }
-
+    for (long long int i = 1; i <= m; ++i) {
+        cin >> c[i];
+    }
+    sort(k + 1, k + 1 + n, greater<>());
+//    for (long long int i = 1; i <= n; ++i) {
+//        cout << k[i] << " ";
+//    }
+//    cout << "\n";
+//    for (long long int i = 1; i <= m; ++i) {
+//        cout << c[i] << " ";
+//    }
+//    cout << "\n";
+    long long int res = 0;
+    long long int c_index = 1;
+    for (long long int i = 1; i <= n; ++i) {
+        if (c_index <= k[i]) {
+            db(c_index, c[c_index]);
+            res += c[c_index];
+            c_index++;
+        } else {
+            res += c[k[i]];
+        }
+    }
+    cout << res;
+    cout << "\n";
 }
 
 int main() {
@@ -174,7 +197,6 @@ int main() {
 
     int tests;
     cin >> tests;
-
     while (tests-- > 0)
         run_case();
 }
