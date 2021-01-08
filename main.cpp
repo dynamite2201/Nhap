@@ -162,15 +162,30 @@ void run_case() {
         cin >> a[i];
     }
     stack<int> greater;
-    stack<int> lower;
+    vector<int> lower;
+    if (N == 1) {
+        cout << a[0] << "\n";
+        return;
+    } else {
+        greater.push(a[0]);
+        for (int i = 1; i < N; ++i) {
+            if (a[i] > greater.top()) {
+                greater.push(a[i]);
+            } else {
+                lower.push_back(a[i]);
+            }
+        }
+        sort(lower.begin(), lower.end());
+        db(lower);
+    }
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-//    freopen("input.txt", "r", stdin);
-//    freopen("output.txt", "w", stdout);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
 
     int T;
     cin >> T;
