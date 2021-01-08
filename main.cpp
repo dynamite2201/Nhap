@@ -1,10 +1,10 @@
 #include <bits/stdc++.h>
-#include <cmath>
-#include <algorithm>
 #include <vector>
-#include <iomanip>
 #include <string>
+#include<queue>
+#include<stack>
 
+using namespace std;
 using namespace std;
 //#pragma GCC optimize("Ofast")
 //#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
@@ -153,39 +153,16 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
+
 void run_case() {
-    long long int n, m;
-    cin >> n >> m;
-    long long int k[n + 1];
-    long long int c[m + 1];
-    for (long long int i = 1; i <= n; ++i) {
-        cin >> k[i];
+    int N;
+    cin >> N;
+    int a[N];
+    for (int i = 0; i < N; ++i) {
+        cin >> a[i];
     }
-    for (long long int i = 1; i <= m; ++i) {
-        cin >> c[i];
-    }
-    sort(k + 1, k + 1 + n, greater<>());
-//    for (long long int i = 1; i <= n; ++i) {
-//        cout << k[i] << " ";
-//    }
-//    cout << "\n";
-//    for (long long int i = 1; i <= m; ++i) {
-//        cout << c[i] << " ";
-//    }
-//    cout << "\n";
-    long long int res = 0;
-    long long int c_index = 1;
-    for (long long int i = 1; i <= n; ++i) {
-        if (c_index <= k[i]) {
-            db(c_index, c[c_index]);
-            res += c[c_index];
-            c_index++;
-        } else {
-            res += c[k[i]];
-        }
-    }
-    cout << res;
-    cout << "\n";
+    stack<int> greater;
+    stack<int> lower;
 }
 
 int main() {
@@ -195,8 +172,9 @@ int main() {
 //    freopen("input.txt", "r", stdin);
 //    freopen("output.txt", "w", stdout);
 
-    int tests;
-    cin >> tests;
-    while (tests-- > 0)
+    int T;
+    cin >> T;
+    while (T-- > 0) {
         run_case();
+    }
 }
