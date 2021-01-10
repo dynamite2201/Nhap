@@ -1,11 +1,12 @@
 #include <bits/stdc++.h>
+#include<iostream>
 #include <vector>
 #include <string>
 #include<queue>
 #include<stack>
 
 using namespace std;
-using namespace std;
+
 //#pragma GCC optimize("Ofast")
 //#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
@@ -153,32 +154,115 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
+const int N = 1e6 + 1000;
+const int oo = 1e9;
+
+struct service {
+    long long int id;
+    long long int a;
+    long long int b;
+    long long int c;
+};
+
+
+service services[N];
+service servicesCompess[N];
+int numCover[N];
+long long int sum[N] = {0};
+vector<int> specialPoint;
+vector<pair<int, int>> coordinate;
+
+int convert(int x) {
+    return (lower_bound(coordinate.begin(), coordinate.end(), make_pair(x, numeric_limits<int>::min())) -
+            coordinate.begin());
+}
+
+bool isValid(int i, int l, int r) {
+    if (l <= i && i <= r)return true;
+    return false;
+}
+
+bool cmp(service a, service b) {
+    return a.a < b.a;
+}
+
+bool check(int l, int r) {
+    int lIndex = lower_bound(specialPoint.begin(), specialPoint.end(), l) - specialPoint.begin();
+    int rIndex = upper_bound(specialPoint.begin(), specialPoint.end(), r) - specialPoint.begin();
+    if (lIndex == specialPoint.size()) {
+        return true;
+    }
+    if (rIndex == 0) {
+        return true;
+    }
+    if (lIndex == rIndex)return true;
+    return false;
+}
 
 void run_case() {
-    int N;
-    cin >> N;
-    int a[N];
-    for (int i = 0; i < N; ++i) {
-        cin >> a[i];
+    long long int n, C;
+    cin >> n >> C;
+
+    for (int i = 1; i <= n; ++i) {
+        cin >> services[i].a >> services[i].b >> services[i].c;
+        coordinate.push_back(make_pair(services[i].a, 1));
+        coordinate.push_back(make_pair(services[i].b, 0));
+        assert(services[i].a <= services[i].b);
     }
-    stack<int> greater;
-    vector<int> lower;
-    if (N == 1) {
-        cout << a[0] << "\n";
-        return;
-    } else {
-        greater.push(a[0]);
-        for (int i = 1; i < N; ++i) {
-            if (a[i] > greater.top()) {
-                greater.push(a[i]);
-            } else {
-                lower.push_back(a[i]);
-            }
+    sort(coordinate.begin(), coordinate.end());
+//    coordinate.resize(unique(coordinate.begin(), coordinate.end()) - coordinate.begin());
+    db(coordinate);
+    //Calculate number segment cover
+
+    for (int i = 1; i <= n; i++) {
+        servicesCompess[i].a = convert(services[i].a);
+        servicesCompess[i].b = convert(services[i].b);
+
+
+        numCover[servicesCompess[i].a]++;
+        sum[servicesCompess[i].a] += services[i].c;
+        numCover[servicesCompess[i].b + 1]--;
+        sum[servicesCompess[i].b + 1] -= services[i].c;
+        db(services[i].a, services[i].b, servicesCompess[i].a, servicesCompess[i].b, services[i].c);
+
+    }
+    int numPoint = coordinate.size();
+
+    for (int i = 0; i < numPoint; i++) {
+        db(i, sum[i]);
+    }
+    for (int i = 0; i < numPoint; i++) {
+        db(i, numCover[i]);
+        db(i, sum[i]);
+    }
+    db(numPoint);
+    for (int i = 1; i < numPoint; i++) {
+        numCover[i] += numCover[i - 1];
+        sum[i] += sum[i - 1];
+
+    }
+    for (int i = 0; i < numPoint; i++) {
+        db(i, numCover[i]);
+        db(i, sum[i]);
+    }
+    long long int total = 0;
+    for (int i = 0; i + 1 < numPoint; i++) {
+        if (coordinate[i].second == 0 and coordinate[i + 1].second == 1) {
+            total += (coordinate[i + 1].first - coordinate[i].first) * min(min(C, sum[i]), sum[i + 1]);
         }
-        sort(lower.begin(), lower.end());
-        db(lower);
+        // TODO làm sao tính được sum tại các vị trí ở giữa, Chứ không phải đầu mút.
+        // TODO nếu các đoạn thẳng overlap có trọng số, làm sao tính trọng số ko phải đầu mút.
     }
+//    total += min(C, sum[numPoint-1])* (coordinate[i] - coordinate[i-1])
+    for (int i = 1; i + 2 < numPoint; i++) {
+        db(i, sum[i], C);
+//        db(coordinate[i], coordinate[i + 1]);
+    }
+//    total += (coordinate[1] - coordinate[0]) * min(C, sum[0]);
+//    total += (coordinate[numPoint - 1] - coordinate[numPoint - 2]) * min(C, sum[numPoint - 1]);
+    db(total);
 }
+
 
 int main() {
     ios_base::sync_with_stdio(false);
@@ -188,7 +272,8 @@ int main() {
     freopen("output.txt", "w", stdout);
 
     int T;
-    cin >> T;
+//    cin >> T;
+    T = 1;
     while (T-- > 0) {
         run_case();
     }
