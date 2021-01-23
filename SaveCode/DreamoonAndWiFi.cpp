@@ -1,18 +1,12 @@
 //
-// Created by alex on 23/01/2021.
-//
-
-//
-// Created by alex on 23/01/2021.
-//
+// Created by alex on 15/01/2021.
+// https://codeforces.com/problemset/problem/476/B
 
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include <iomanip>
 #include <string>
-#include <bitset>
 
 using namespace std;
 //#pragma GCC optimize("Ofast")
@@ -37,11 +31,9 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
-typedef pair<int, int> pii;
+typedef pair<int, int> pi;
 typedef vector<int> vi;
-typedef vector<pii> vpii;
-typedef pair<ll, ll> pll;
-typedef vector<pair<ll, ll>> vpll;
+typedef vector<pi> vii;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
 const int INF = (int) 2e9 + 22011995;
@@ -164,119 +156,73 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-//BELL
-struct Edge {
-    int u, v, w;
+int binomialCoefficients(int n, int k) {
+    if (k == 0 || k == n)
+        return 1;
+    return binomialCoefficients(n - 1, k - 1) + binomialCoefficients(n - 1, k);
+}
 
-    Edge(int u = 0, int v = 0, int w = 0) :
-            u(u), v(v), w(w) {}
-};
-
-vector<int> dist, path;
-
-int bellmanFord(vector<Edge> &edges, int n, int m, int s) {
-    dist.assign(n + 1, INF);
-    path.assign(n + 1, -1);
-    dist[s] = 0;
-
-    int u, v, w;
-    for (int i = 1; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            u = edges[j].u;
-            v = edges[j].v;
-            w = edges[j].w;
-            if (dist[u] != INF && dist[v] > dist[u] + w) {
-                dist[v] = dist[u] + w;
-                path[v] = u;
+void run_case() {
+    string s;
+    string g;
+    cin >> s >> g;
+    int res1 = 0;
+    int res2 = 0;
+    int cntques = 0;
+    for (int i = 0; i < s.size(); ++i) {
+        if (s[i] == '+') {
+            res1++;
+        } else {
+            res1--;
+        }
+    }
+    for (int i = 0; i < s.size(); ++i) {
+        if (g[i] == '+') {
+            res2++;
+        } else if (g[i] == '-') {
+            res2--;
+        } else {
+            cntques++;
+        }
+    }
+    db(res1, res2, cntques);
+    int minD = res2 - cntques;
+    int maxD = res2 + cntques;
+    db(minD, maxD);
+    if (minD > res1 or maxD < res1) {
+        cout << fixed << setprecision(9) << (double) 0;
+    } else {
+        if (res1 == minD) {
+            cout << fixed << setprecision(9) << (double) 1 / pow(2, cntques);
+        } else {
+            int cntPlusSign = 0;
+            while (res1 > minD) {
+                minD += 2;
+                cntPlusSign++;
+            }
+            if (res1 != minD) {
+                cout << fixed << setprecision(9) << (double) 0;
+            } else {
+                db(cntPlusSign);
+                int x = binomialCoefficients(cntques, cntPlusSign);
+                cout << fixed << setprecision(9) << (double) x / (pow(2, cntques));
             }
         }
     }
-
-    for (int j = 0; j < m; ++j) {
-        u = edges[j].u;
-        v = edges[j].v;
-        w = edges[j].w;
-        if (dist[u] != INF && dist[v] > dist[u] + w) {
-            return false;
-        }
-    }
-    return true;
 }
-// FLOYD
-//vector<vi> dist, path;
-//
-//int floydWarshall(vector<vi> &matrix, int n) {
-//    dist.assign(n, vi(n));
-//    path.assign(n, vi(n));
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        for (int j = 0; j <= n - 1; ++j) {
-//            dist[i][j] = i == j ? 0 : matrix[i][j];
-//            if (i != j && dist[i][j] < INF) {
-//                path[i][j] = i;
-//            } else {
-//                path[i][j] = -1;
-//            }
-//        }
-//    }
-//
-//    for (int k = 0; k <= n - 1; ++k) {
-//        for (int i = 0; i <= n - 1; ++i) {
-//            if (dist[i][k] >= INF) continue;
-//            for (int j = 0; j <= n - 1; ++j) {
-//                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
-//                    dist[i][j] = dist[i][k] + dist[k][j];
-//                    path[i][j] = path[k][j];
-//                }
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        if (dist[i][i] < 0) return false;
-//    }
-//
-//    return true;
-//}
 
 int main() {
     ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    while (true) {
-        int n, m, q;
-        cin >> n >> m >> q;
-        if (n == 0 && m == 0 && q == 0) break;
-        vector<Edge> edges;
-        vector<vi> matrix(n, vi(n, INF));
-        for (int u, v, w, i = 0; i < m; ++i) {
-            cin >> u >> v >> w;
-//            matrix[u][v] = w;
-            edges.push_back(Edge(u, v, w));
-        }
+    cin.tie();
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
 
+//    int T;
+//    cin >> T;
+//    while (T--) {
+//        run_case();
+//    }
+    run_case();
 
-        db("TEST");
-        for (int i = 1; i <= q; ++i) {
-            int start, end;
-            cin >> start >> end;
-            bellmanFord(edges, n, m, start);
-            db(start, end, dist[end]);
-            if (dist[end] == INF) {
-//                db(start, end, dist[start][end]);
-                cout << "Impossible";
-            } else {
-                if (dist[start][start] < 0 || dist[end][end] < 0) {
-                    cout << "-Infinity";
-                } else {
-                    cout << dist[start][end];
-                }
-            }
-            cout << "\n";
-        }
-        cout << "\n";
-    }
     return 0;
 }

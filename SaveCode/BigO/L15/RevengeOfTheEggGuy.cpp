@@ -3,16 +3,17 @@
 //
 
 //
-// Created by alex on 23/01/2021.
+// Created by alex on 16/01/2021.
 //
+//
+// Created by alex on 15/01/2021.
+// https://codeforces.com/problemset/problem/295/A
 
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include <iomanip>
 #include <string>
-#include <bitset>
 
 using namespace std;
 //#pragma GCC optimize("Ofast")
@@ -37,11 +38,9 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
-typedef pair<int, int> pii;
+typedef pair<int, int> pi;
 typedef vector<int> vi;
-typedef vector<pii> vpii;
-typedef pair<ll, ll> pll;
-typedef vector<pair<ll, ll>> vpll;
+typedef vector<pi> vii;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
 const int INF = (int) 2e9 + 22011995;
@@ -164,7 +163,7 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-//BELL
+
 struct Edge {
     int u, v, w;
 
@@ -202,81 +201,49 @@ int bellmanFord(vector<Edge> &edges, int n, int m, int s) {
     }
     return true;
 }
-// FLOYD
-//vector<vi> dist, path;
-//
-//int floydWarshall(vector<vi> &matrix, int n) {
-//    dist.assign(n, vi(n));
-//    path.assign(n, vi(n));
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        for (int j = 0; j <= n - 1; ++j) {
-//            dist[i][j] = i == j ? 0 : matrix[i][j];
-//            if (i != j && dist[i][j] < INF) {
-//                path[i][j] = i;
-//            } else {
-//                path[i][j] = -1;
-//            }
-//        }
-//    }
-//
-//    for (int k = 0; k <= n - 1; ++k) {
-//        for (int i = 0; i <= n - 1; ++i) {
-//            if (dist[i][k] >= INF) continue;
-//            for (int j = 0; j <= n - 1; ++j) {
-//                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
-//                    dist[i][j] = dist[i][k] + dist[k][j];
-//                    path[i][j] = path[k][j];
-//                }
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        if (dist[i][i] < 0) return false;
-//    }
-//
-//    return true;
-//}
+
+
+void runcase() {
+    vector<Edge> edges;
+    int n;
+    cin >> n;
+    int m = 0;
+    for (int i = 1; i < n + 1; ++i) {
+        for (int j = 1; j < n + 1; ++j) {
+            int weight;
+            cin >> weight;
+            if (i == j) continue;
+            if (weight == -1) continue;
+            edges.push_back(Edge(i, j, weight));
+            m++;
+        }
+    }
+    bellmanFord(edges, n, m, 1);
+};
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    while (true) {
-        int n, m, q;
-        cin >> n >> m >> q;
-        if (n == 0 && m == 0 && q == 0) break;
-        vector<Edge> edges;
-        vector<vi> matrix(n, vi(n, INF));
-        for (int u, v, w, i = 0; i < m; ++i) {
-            cin >> u >> v >> w;
-//            matrix[u][v] = w;
-            edges.push_back(Edge(u, v, w));
-        }
-
-
-        db("TEST");
-        for (int i = 1; i <= q; ++i) {
-            int start, end;
-            cin >> start >> end;
-            bellmanFord(edges, n, m, start);
-            db(start, end, dist[end]);
-            if (dist[end] == INF) {
-//                db(start, end, dist[start][end]);
-                cout << "Impossible";
-            } else {
-                if (dist[start][start] < 0 || dist[end][end] < 0) {
-                    cout << "-Infinity";
-                } else {
-                    cout << dist[start][end];
-                }
-            }
-            cout << "\n";
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    int t;
+    cin >> t;
+    int test = 1;
+    while (t > 0) {
+        dist = vector<int>();
+        path = vector<int>();
+        runcase();
+        db(dist[2]);
+        cout << "Circuit Design #" << test << ": ";
+        if (dist[2] == 0) {
+            cout << "Back to the drawing board";
+        } else {
+            cout << "No more hedgehog troubles";
         }
         cout << "\n";
+        t--;
+        test++;
     }
     return 0;
 }

@@ -164,80 +164,39 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-//BELL
-struct Edge {
-    int u, v, w;
+vector<vi> dist, path;
 
-    Edge(int u = 0, int v = 0, int w = 0) :
-            u(u), v(v), w(w) {}
-};
+int floydWarshall(vector<vi> &matrix, int n) {
+    dist.assign(n + 1, vi(n + 1));
+    path.assign(n + 1, vi(n + 1));
 
-vector<int> dist, path;
-
-int bellmanFord(vector<Edge> &edges, int n, int m, int s) {
-    dist.assign(n + 1, INF);
-    path.assign(n + 1, -1);
-    dist[s] = 0;
-
-    int u, v, w;
-    for (int i = 1; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            u = edges[j].u;
-            v = edges[j].v;
-            w = edges[j].w;
-            if (dist[u] != INF && dist[v] > dist[u] + w) {
-                dist[v] = dist[u] + w;
-                path[v] = u;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            dist[i][j] = i == j ? 0 : matrix[i][j];
+            if (i != j && dist[i][j] < INF) {
+                path[i][j] = i;
+            } else {
+                path[i][j] = -1;
             }
         }
     }
 
-    for (int j = 0; j < m; ++j) {
-        u = edges[j].u;
-        v = edges[j].v;
-        w = edges[j].w;
-        if (dist[u] != INF && dist[v] > dist[u] + w) {
-            return false;
+    for (int k = 1; k <= n; ++k) {
+        for (int i = 1; i <= n; ++i) {
+            if (dist[i][k] >= INF) continue;
+            for (int j = 1; j <= n; ++j) {
+                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    path[i][j] = path[k][j];
+                }
+            }
         }
+        for (int i = 1; i <= n; ++i) {
+            if (dist[i][i] < 0) return false;
+        }
+        return true;
     }
-    return true;
 }
-// FLOYD
-//vector<vi> dist, path;
-//
-//int floydWarshall(vector<vi> &matrix, int n) {
-//    dist.assign(n, vi(n));
-//    path.assign(n, vi(n));
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        for (int j = 0; j <= n - 1; ++j) {
-//            dist[i][j] = i == j ? 0 : matrix[i][j];
-//            if (i != j && dist[i][j] < INF) {
-//                path[i][j] = i;
-//            } else {
-//                path[i][j] = -1;
-//            }
-//        }
-//    }
-//
-//    for (int k = 0; k <= n - 1; ++k) {
-//        for (int i = 0; i <= n - 1; ++i) {
-//            if (dist[i][k] >= INF) continue;
-//            for (int j = 0; j <= n - 1; ++j) {
-//                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
-//                    dist[i][j] = dist[i][k] + dist[k][j];
-//                    path[i][j] = path[k][j];
-//                }
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        if (dist[i][i] < 0) return false;
-//    }
-//
-//    return true;
-//}
 
 int main() {
     ios_base::sync_with_stdio(false);
@@ -245,38 +204,18 @@ int main() {
     cout.tie(nullptr);
     freopen("input.txt", "r", stdin);
     freopen("output.txt", "w", stdout);
-    while (true) {
-        int n, m, q;
-        cin >> n >> m >> q;
-        if (n == 0 && m == 0 && q == 0) break;
-        vector<Edge> edges;
-        vector<vi> matrix(n, vi(n, INF));
-        for (int u, v, w, i = 0; i < m; ++i) {
-            cin >> u >> v >> w;
-//            matrix[u][v] = w;
-            edges.push_back(Edge(u, v, w));
-        }
+    int n, m;
+    cin >> n >> m;
 
 
-        db("TEST");
-        for (int i = 1; i <= q; ++i) {
-            int start, end;
-            cin >> start >> end;
-            bellmanFord(edges, n, m, start);
-            db(start, end, dist[end]);
-            if (dist[end] == INF) {
-//                db(start, end, dist[start][end]);
-                cout << "Impossible";
-            } else {
-                if (dist[start][start] < 0 || dist[end][end] < 0) {
-                    cout << "-Infinity";
-                } else {
-                    cout << dist[start][end];
-                }
-            }
-            cout << "\n";
-        }
-        cout << "\n";
+    vector<vi> matrix(n + 1, vi(n + 1, INF));
+    for (int u, v, w, i = 0; i < m; ++i) {
+        cin >> u >> v >> w;
+        matrix[u][v] = w;
+    }
+    floydWarshall(matrix, n);
+    for (int i = 1; i <= n; ++i) {
+        cout << dist[1][n] << " ";
     }
     return 0;
 }

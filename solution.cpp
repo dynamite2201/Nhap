@@ -1,57 +1,40 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <map>
+#include <set>
+#include <vector>
 
 using namespace std;
-struct node {
-    int h, w;
-    int id;
-} p[200010];
-int _;
-int n;
-int ans[200010];
-
-bool cmp(const struct node &a, const struct node &b) {
-    if (a.h == b.h)
-        return a.w < b.w;
-    return a.h < b.h;
-}
+typedef long long ll;
 
 int main() {
-    cin >> _;
-    while (_--) {
-        cin >> n;
-        for (int i = 1; i <= n; i++) {
-            cin >> p[i].h >> p[i].w;
-            p[i].id = i;
-            if (p[i].h > p[i].w) {
-                swap(p[i].h, p[i].w);
-            }
-        }
-        sort(p + 1, p + n + 1, cmp);
-        int mw = 1e9 + 11;//当前比p[i].h小的y的最小值
-        int maw = 1e9 + 11;//为下一次更新做准备
-        int mwpos = -1;
-        int mawpos = -1;
-        for (int i = 1; i <= n; i++) {
-            if (p[i].w > mw) {
-                ans[p[i].id] = p[mwpos].id;
-            } else {
-                ans[p[i].id] = -1;
-            }
-            if (p[i].w < maw) {
-                maw = p[i].w;
-                mawpos = i;
-            }
-            if (i < n && p[i + 1].h > p[i].h) {
-                if (maw < mw) {
-                    mw = maw;
-                    mwpos = mawpos;
-                }
-            }
-        }
-        for (int i = 1; i <= n; i++) {
-            cout << ans[i] << " ";
-        }
-        cout << "\n";
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    int N;
+    ll C;
+    cin >> N >> C;
+    vector<int> a(N), b(N), c(N);
+    set<int> s;
+    map<int, ll> changes;
+    for (int i = 0; i < N; ++i) {
+        cin >> a[i] >> b[i] >> c[i];
+        // We only need a[i] and b[i]+1 to represent the final segments.
+        // For example, [1, 4] and [3, 8] will make
+        // [1, 2], [3, 4], [5, 8] and [9, +inf).
+        // They can also be seen as [1, 3), [3, 5), [5, 9) and [9, +inf].
+        // We need 1, 3, 5, and 9 to represent these segments.
+        s.insert(a[i]), s.insert(b[i] + 1);
+        // We use a map to store the change of cost on each critical day.
+        changes[a[i]] += c[i];
+        changes[b[i] + 1] -= c[i];
     }
-    return 0;
+    vector<int> v(s.begin(), s.end());
+    int M = v.size();
+    ll ans = 0, acc = 0;
+    for (int i = 0; i < M - 1; ++i) {
+        // Deal with the starting and ending of segments.
+        acc += changes[v[i]];
+        // Add to the total cost.
+        ans += min(C, acc) * (v[i + 1] - v[i]);
+    }
+    cout << ans;
 }

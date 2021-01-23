@@ -1,10 +1,6 @@
 //
-// Created by alex on 23/01/2021.
-//
-
-//
-// Created by alex on 23/01/2021.
-//
+// Created by alex on 17/01/2021.
+// https://bigocoder.com/courses/45/lectures/649/problems/1187?view=statement
 
 #include <bits/stdc++.h>
 #include <cmath>
@@ -37,11 +33,9 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
-typedef pair<int, int> pii;
+typedef pair<int, int> pi;
 typedef vector<int> vi;
-typedef vector<pii> vpii;
-typedef pair<ll, ll> pll;
-typedef vector<pair<ll, ll>> vpll;
+typedef vector<pi> vii;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
 const int INF = (int) 2e9 + 22011995;
@@ -164,119 +158,81 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-//BELL
-struct Edge {
-    int u, v, w;
+int test = 1;
 
-    Edge(int u = 0, int v = 0, int w = 0) :
-            u(u), v(v), w(w) {}
-};
+void run_case() {
+    priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, greater<>> pq;
+    vector<priority_queue<pair<pair<int, int>, int>, vector<pair<pair<int, int>, int>>, greater<>>> pqAval(2);
+    int T, NA, NB;
+    cin >> T >> NA >> NB;
+    int res[2];
+    res[0] = 0, res[1] = 0;
+    for (int i = 0; i < NA; ++i) {
+        string start, end;
+        cin >> start >> end;
+        int x = start[0] - '0';
+        int y = start[1] - '0';
+        int z = start[3] - '0';
+        int t = start[4] - '0';
+        int timestart = (10 * x + y) * 60 + 10 * z + t;
+        x = end[0] - '0';
+        y = end[1] - '0';
+        z = end[3] - '0';
+        t = end[4] - '0';
+        int timesend = (10 * x + y) * 60 + 10 * z + t;
+        pair<pair<int, int>, int> trip = make_pair(make_pair(timestart, timesend), 0);
+        pq.push(trip);
+    }
+    for (int i = 0; i < NB; ++i) {
+        string start, end;
+        cin >> start >> end;
+        int x = start[0] - '0';
+        int y = start[1] - '0';
+        int z = start[3] - '0';
+        int t = start[4] - '0';
+        int timestart = (10 * x + y) * 60 + 10 * z + t;
+        x = end[0] - '0';
+        y = end[1] - '0';
+        z = end[3] - '0';
+        t = end[4] - '0';
+        int timesend = (10 * x + y) * 60 + 10 * z + t;
+        pair<pair<int, int>, int> trip = make_pair(make_pair(timestart, timesend), 1);
+        pq.push(trip);
+    }
 
-vector<int> dist, path;
-
-int bellmanFord(vector<Edge> &edges, int n, int m, int s) {
-    dist.assign(n + 1, INF);
-    path.assign(n + 1, -1);
-    dist[s] = 0;
-
-    int u, v, w;
-    for (int i = 1; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            u = edges[j].u;
-            v = edges[j].v;
-            w = edges[j].w;
-            if (dist[u] != INF && dist[v] > dist[u] + w) {
-                dist[v] = dist[u] + w;
-                path[v] = u;
-            }
+    while (!pq.empty()) {
+        pair<pair<int, int>, int> mostTrip = pq.top();
+        if (!pqAval[mostTrip.second].empty() && pqAval[mostTrip.second].top() <= mostTrip) {
+            pqAval[mostTrip.second].pop();
+        } else {
+            res[mostTrip.second]++;
+        }
+        pq.pop(); //  den noi
+        // Them chuyen o tram doi dien:
+        int timeStart = mostTrip.first.second + T;
+        int interval = mostTrip.first.second - mostTrip.first.first;
+        if (timeStart <= 23 * 60 + 59) {
+            pair<pair<int, int>, int> tripAdded = make_pair(make_pair(timeStart, timeStart + interval),
+                                                            1 - mostTrip.second);
+            pqAval[1 - mostTrip.second].push(tripAdded);
         }
     }
 
-    for (int j = 0; j < m; ++j) {
-        u = edges[j].u;
-        v = edges[j].v;
-        w = edges[j].w;
-        if (dist[u] != INF && dist[v] > dist[u] + w) {
-            return false;
-        }
-    }
-    return true;
+    cout << "Case #" << test << ": " << res[0] << " " << res[1] << "\n";
 }
-// FLOYD
-//vector<vi> dist, path;
-//
-//int floydWarshall(vector<vi> &matrix, int n) {
-//    dist.assign(n, vi(n));
-//    path.assign(n, vi(n));
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        for (int j = 0; j <= n - 1; ++j) {
-//            dist[i][j] = i == j ? 0 : matrix[i][j];
-//            if (i != j && dist[i][j] < INF) {
-//                path[i][j] = i;
-//            } else {
-//                path[i][j] = -1;
-//            }
-//        }
-//    }
-//
-//    for (int k = 0; k <= n - 1; ++k) {
-//        for (int i = 0; i <= n - 1; ++i) {
-//            if (dist[i][k] >= INF) continue;
-//            for (int j = 0; j <= n - 1; ++j) {
-//                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
-//                    dist[i][j] = dist[i][k] + dist[k][j];
-//                    path[i][j] = path[k][j];
-//                }
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        if (dist[i][i] < 0) return false;
-//    }
-//
-//    return true;
-//}
+
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    while (true) {
-        int n, m, q;
-        cin >> n >> m >> q;
-        if (n == 0 && m == 0 && q == 0) break;
-        vector<Edge> edges;
-        vector<vi> matrix(n, vi(n, INF));
-        for (int u, v, w, i = 0; i < m; ++i) {
-            cin >> u >> v >> w;
-//            matrix[u][v] = w;
-            edges.push_back(Edge(u, v, w));
-        }
-
-
-        db("TEST");
-        for (int i = 1; i <= q; ++i) {
-            int start, end;
-            cin >> start >> end;
-            bellmanFord(edges, n, m, start);
-            db(start, end, dist[end]);
-            if (dist[end] == INF) {
-//                db(start, end, dist[start][end]);
-                cout << "Impossible";
-            } else {
-                if (dist[start][start] < 0 || dist[end][end] < 0) {
-                    cout << "-Infinity";
-                } else {
-                    cout << dist[start][end];
-                }
-            }
-            cout << "\n";
-        }
-        cout << "\n";
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    int T;
+    cin >> T;
+    while (T > 0) {
+        run_case();
+        T--;
+        test++;
     }
-    return 0;
 }

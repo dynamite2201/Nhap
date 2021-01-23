@@ -1,18 +1,15 @@
 //
-// Created by alex on 23/01/2021.
+// Created by alex on 16/01/2021.
 //
-
 //
-// Created by alex on 23/01/2021.
-//
+// Created by alex on 15/01/2021.
+// https://codeforces.com/problemset/problem/295/A
 
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include <iomanip>
 #include <string>
-#include <bitset>
 
 using namespace std;
 //#pragma GCC optimize("Ofast")
@@ -37,11 +34,9 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
-typedef pair<int, int> pii;
+typedef pair<int, int> pi;
 typedef vector<int> vi;
-typedef vector<pii> vpii;
-typedef pair<ll, ll> pll;
-typedef vector<pair<ll, ll>> vpll;
+typedef vector<pi> vii;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
 const int INF = (int) 2e9 + 22011995;
@@ -164,119 +159,59 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-//BELL
-struct Edge {
-    int u, v, w;
-
-    Edge(int u = 0, int v = 0, int w = 0) :
-            u(u), v(v), w(w) {}
-};
-
-vector<int> dist, path;
-
-int bellmanFord(vector<Edge> &edges, int n, int m, int s) {
-    dist.assign(n + 1, INF);
-    path.assign(n + 1, -1);
-    dist[s] = 0;
-
-    int u, v, w;
-    for (int i = 1; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            u = edges[j].u;
-            v = edges[j].v;
-            w = edges[j].w;
-            if (dist[u] != INF && dist[v] > dist[u] + w) {
-                dist[v] = dist[u] + w;
-                path[v] = u;
-            }
-        }
-    }
-
-    for (int j = 0; j < m; ++j) {
-        u = edges[j].u;
-        v = edges[j].v;
-        w = edges[j].w;
-        if (dist[u] != INF && dist[v] > dist[u] + w) {
-            return false;
-        }
-    }
-    return true;
-}
-// FLOYD
-//vector<vi> dist, path;
-//
-//int floydWarshall(vector<vi> &matrix, int n) {
-//    dist.assign(n, vi(n));
-//    path.assign(n, vi(n));
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        for (int j = 0; j <= n - 1; ++j) {
-//            dist[i][j] = i == j ? 0 : matrix[i][j];
-//            if (i != j && dist[i][j] < INF) {
-//                path[i][j] = i;
-//            } else {
-//                path[i][j] = -1;
-//            }
-//        }
-//    }
-//
-//    for (int k = 0; k <= n - 1; ++k) {
-//        for (int i = 0; i <= n - 1; ++i) {
-//            if (dist[i][k] >= INF) continue;
-//            for (int j = 0; j <= n - 1; ++j) {
-//                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
-//                    dist[i][j] = dist[i][k] + dist[k][j];
-//                    path[i][j] = path[k][j];
-//                }
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        if (dist[i][i] < 0) return false;
-//    }
-//
-//    return true;
-//}
 
 int main() {
     ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
+    cin.tie();
     freopen("input.txt", "r", stdin);
     freopen("output.txt", "w", stdout);
-    while (true) {
-        int n, m, q;
-        cin >> n >> m >> q;
-        if (n == 0 && m == 0 && q == 0) break;
-        vector<Edge> edges;
-        vector<vi> matrix(n, vi(n, INF));
-        for (int u, v, w, i = 0; i < m; ++i) {
-            cin >> u >> v >> w;
-//            matrix[u][v] = w;
-            edges.push_back(Edge(u, v, w));
-        }
 
-
-        db("TEST");
-        for (int i = 1; i <= q; ++i) {
-            int start, end;
-            cin >> start >> end;
-            bellmanFord(edges, n, m, start);
-            db(start, end, dist[end]);
-            if (dist[end] == INF) {
-//                db(start, end, dist[start][end]);
-                cout << "Impossible";
-            } else {
-                if (dist[start][start] < 0 || dist[end][end] < 0) {
-                    cout << "-Infinity";
-                } else {
-                    cout << dist[start][end];
-                }
-            }
-            cout << "\n";
-        }
-        cout << "\n";
+//    int T;
+//    cin >> T;
+//    while (T--) {
+//        run_case();
+//    }
+//    run_case();
+    int n, m, k;
+    cin >> n >> m >> k;
+    vector<ll> a(n), l1(m), r1(m), d(m), l2(k), r2(k);
+    map<int, ll> changes1;
+    map<int, ll> changes2;
+    for (int i = 0; i < n; ++i) {
+        cin >> a[i];
     }
+    for (int i = 0; i < m; ++i) {
+        cin >> l1[i] >> r1[i] >> d[i];
+        l1[i]--;
+        r1[i]--;
+    }
+
+    for (int i = 0; i < k; ++i) {
+        cin >> l2[i] >> r2[i];
+        l2[i]--;
+        r2[i]--;
+        changes2[l2[i]]++;
+        changes2[r2[i] + 1]--;
+    }
+
+    ll acc2 = 0;
+    for (int i = 0; i < m; ++i) {
+        acc2 += changes2[i];
+        d[i] *= acc2;
+        db(d[i]);
+    }
+
+    for (int i = 0; i < m; ++i) {
+        changes1[l1[i]] += d[i];
+        changes1[r1[i] + 1] -= d[i];
+    }
+
+    ll acc1 = 0;
+    for (int i = 0; i < n; ++i) {
+        acc1 += changes1[i];
+        a[i] += acc1;
+        cout << a[i] << " ";
+    }
+
     return 0;
 }

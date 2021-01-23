@@ -1,9 +1,5 @@
 //
-// Created by alex on 23/01/2021.
-//
-
-//
-// Created by alex on 23/01/2021.
+// Created by alex on 18/01/2021.
 //
 
 #include <bits/stdc++.h>
@@ -37,11 +33,9 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
-typedef pair<int, int> pii;
+typedef pair<int, int> pi;
 typedef vector<int> vi;
-typedef vector<pii> vpii;
-typedef pair<ll, ll> pll;
-typedef vector<pair<ll, ll>> vpll;
+typedef vector<pi> vii;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
 const int INF = (int) 2e9 + 22011995;
@@ -164,119 +158,68 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-//BELL
-struct Edge {
-    int u, v, w;
 
-    Edge(int u = 0, int v = 0, int w = 0) :
-            u(u), v(v), w(w) {}
-};
+int run_case() {
+    int res = 0;
+    int N;
+    cin >> N;
+    vector<pair<int, int>> biasDistance;
+    biasDistance.emplace_back(0, 0); // location of tower
+    priority_queue<pair<int, int>, vector<pair<int, int>>, less<>> biasFuel;
+    for (int i = 0; i < N; ++i) {
+        int a, b;
+        cin >> a >> b;
+        biasDistance.emplace_back(a, b);
+    }
+    sort(biasDistance.begin(), biasDistance.end());
 
-vector<int> dist, path;
+    int L, P;
+    cin >> L >> P;
 
-int bellmanFord(vector<Edge> &edges, int n, int m, int s) {
-    dist.assign(n + 1, INF);
-    path.assign(n + 1, -1);
-    dist[s] = 0;
 
-    int u, v, w;
-    for (int i = 1; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            u = edges[j].u;
-            v = edges[j].v;
-            w = edges[j].w;
-            if (dist[u] != INF && dist[v] > dist[u] + w) {
-                dist[v] = dist[u] + w;
-                path[v] = u;
+    while (!biasDistance.empty()) {
+        // Nạp các mốc có thể đến được
+        while (P >= L - biasDistance.back().first && !biasDistance.empty()) {
+            biasFuel.push({biasDistance.back().second, biasDistance.back().first});
+            biasDistance.pop_back();
+        }
+
+
+        while (P < L - biasDistance.back().first && !biasFuel.empty()) {
+            int addedFuel = biasFuel.top().first;
+            int location = biasFuel.top().second;
+            biasFuel.pop();
+            if (L >= location) {
+                P = P - (L - location) + addedFuel;
+                L = location;
+            } else {
+                P += addedFuel;
             }
+            res++; // Dừng tại trạm 1 lần
+        }
+
+
+        // Không đủ xăng đến địa điểm tiếp theo
+        if (P < L - biasDistance.back().first) {
+            return -1;
         }
     }
 
-    for (int j = 0; j < m; ++j) {
-        u = edges[j].u;
-        v = edges[j].v;
-        w = edges[j].w;
-        if (dist[u] != INF && dist[v] > dist[u] + w) {
-            return false;
-        }
-    }
-    return true;
+    return res;
 }
-// FLOYD
-//vector<vi> dist, path;
-//
-//int floydWarshall(vector<vi> &matrix, int n) {
-//    dist.assign(n, vi(n));
-//    path.assign(n, vi(n));
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        for (int j = 0; j <= n - 1; ++j) {
-//            dist[i][j] = i == j ? 0 : matrix[i][j];
-//            if (i != j && dist[i][j] < INF) {
-//                path[i][j] = i;
-//            } else {
-//                path[i][j] = -1;
-//            }
-//        }
-//    }
-//
-//    for (int k = 0; k <= n - 1; ++k) {
-//        for (int i = 0; i <= n - 1; ++i) {
-//            if (dist[i][k] >= INF) continue;
-//            for (int j = 0; j <= n - 1; ++j) {
-//                if (dist[k][j] < INF && dist[i][j] > dist[i][k] + dist[k][j]) {
-//                    dist[i][j] = dist[i][k] + dist[k][j];
-//                    path[i][j] = path[k][j];
-//                }
-//            }
-//        }
-//    }
-//
-//    for (int i = 0; i <= n - 1; ++i) {
-//        if (dist[i][i] < 0) return false;
-//    }
-//
-//    return true;
-//}
+
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    while (true) {
-        int n, m, q;
-        cin >> n >> m >> q;
-        if (n == 0 && m == 0 && q == 0) break;
-        vector<Edge> edges;
-        vector<vi> matrix(n, vi(n, INF));
-        for (int u, v, w, i = 0; i < m; ++i) {
-            cin >> u >> v >> w;
-//            matrix[u][v] = w;
-            edges.push_back(Edge(u, v, w));
-        }
+    //   freopen("input.txt", "r", stdin);
+    //  freopen("output.txt", "w", stdout);
+    int T;
+    cin >> T;
+    while (T > 0) {
 
-
-        db("TEST");
-        for (int i = 1; i <= q; ++i) {
-            int start, end;
-            cin >> start >> end;
-            bellmanFord(edges, n, m, start);
-            db(start, end, dist[end]);
-            if (dist[end] == INF) {
-//                db(start, end, dist[start][end]);
-                cout << "Impossible";
-            } else {
-                if (dist[start][start] < 0 || dist[end][end] < 0) {
-                    cout << "-Infinity";
-                } else {
-                    cout << dist[start][end];
-                }
-            }
-            cout << "\n";
-        }
-        cout << "\n";
+        cout << run_case() << "\n";
+        T--;
     }
-    return 0;
 }
