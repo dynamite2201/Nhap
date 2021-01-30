@@ -1,3 +1,7 @@
+//
+// Created by alex on 23/01/2021.
+//
+
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
@@ -156,77 +160,52 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-class UnionFind {
-private:
-    vector<int> p, rank;
-public:
-    UnionFind(int N) {
-        p.assign(N, 0);
-        for (int i = 0; i < N; ++i) p[i] = i;
-        rank.assign(N, 0);
-    }
+#include <bits/stdc++.h>
 
-    int findSet(int i) { return (p[i] == i) ? i : (p[i] = findSet(p[i])); }
+using namespace std;
 
-    bool isSameSet(int i, int j) { return findSet(i) == findSet(j); }
+const int maxN = 150, maxW = 1000, minW = -1000;
+const int maxINF = (maxN - 1) * maxW, minINF = (maxN - 1) * minW;
 
-    void unionSet(int i, int j) {
-        if (i == j) return;
-
-        int x = findSet(i);
-        if (i != x) { // nếu i không xuất hiện trong array hiện tại, nó là con của x.
-            return;
+void floydWarshall2(vector<vector<int>> &dist, int n) {
+    for (int k = 0; k <= n - 1; ++k) {
+        for (int i = 0; i <= n - 1; ++i) {
+            if (dist[i][k] >= maxINF) continue;
+            for (int j = 0; j <= n - 1; ++j) {
+                if (dist[k][j] < maxINF && dist[i][j] > dist[i][k] + dist[k][j]) {
+                    dist[i][j] = dist[i][k] + dist[k][j];
+                    dist[i][j] = max(dist[i][j],
+                                     minINF); // nếu không có chu trình âm -> simple path -> min all path = (n-1)*-maxW
+                }
+            }
         }
-        p[x] = j;
-        p[j] = j;
-//        rank[j] = rank[x]++;
     }
-};
+
+    for (int k = 0; k <= n - 1; ++k) {
+        for (int i = 0; i <= n - 1; ++i) {
+            if (dist[i][k] >= maxINF) continue;
+            for (int j = 0; j <= n - 1; ++j) {
+                if (dist[k][j] < maxINF && dist[i][j] > dist[i][k] + dist[k][j]) {
+                    dist[i][j] = minINF;
+                }
+            }
+        }
+    }
+
+}
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie();
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    int t;
-    cin >> t;
-    int test = 1;
-    while (t > 0) {
-        UnionFind UF(100001); // create 100001 disjoint sets
-        cout << "Case " << test << ":" << "\n";
+    int n, m;
+    cin >> n >> m;
 
-        int n, q;
-        cin >> n >> q;
-        vi a;
-        vi b;
-        for (int i = 1; i < n + 1; ++i) {
-            int x;
-            cin >> x;
-            a.emplace_back(x);
-        }
-        db(a);
-        for (int i = 0; i < q; ++i) {
-            int type;
-            cin >> type;
-            if (type == 2) {
-                int index;
-                cin >> index;
-                cout << UF.findSet(a[index - 1]) << "\n";
-                db(index, UF.findSet(a[index - 1]));
-            } else {
-                int x, y;
-                cin >> x >> y;
-                UF.unionSet(x, y);
-                db(x, "->", y);
-                b = vi();
-                for (int i = 1; i < n + 1; ++i) {
-                    b.emplace_back(UF.findSet(a[i - 1]));
-                }
-                db(b);
+    vector<vector<int>> dist(n, vector<int>(n, maxINF)); // Cho tất cả thành maxINF.
+    for (int i = 0; i < n; i++) dist[i][i] = 0; // i->i w = 0.
 
-            };
-        }
-        t--;
+    for (int u, v, w, i = 0; i < m; ++i) {
+        cin >> u >> v >> w;
+        dist[u][v] = min(dist[u][v], w); // nếu là multigraph chọn cạnh nhỏ nhất.
     }
+
+    floydWarshall2(dist, n);
     return 0;
 }

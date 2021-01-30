@@ -1,3 +1,7 @@
+//
+// Created by alex on 30/01/2021.
+// https://codeforces.com/contest/1476/problem/C
+
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
@@ -156,76 +160,63 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-class UnionFind {
-private:
-    vector<int> p, rank;
-public:
-    UnionFind(int N) {
-        p.assign(N, 0);
-        for (int i = 0; i < N; ++i) p[i] = i;
-        rank.assign(N, 0);
+void runcase() {
+    long long int n;
+    cin >> n;
+    vector<long long int> cb;
+    vector<long long int> ca;
+    for (long long int i = 0; i < n; ++i) {
+        long long int x;
+        cin >> x;
+        cb.push_back(x);
+    }
+    for (long long int i = 0; i < n; ++i) {
+        ca.push_back(1);
+    }
+    vector<long long int> a, b;
+    long long int z;
+    cin >> z;
+    for (int i = 0; i < n - 1; ++i) {
+        cin >> z;
+        a.push_back(z);
+    }
+    long long int t;
+    cin >> t;
+    for (int i = 0; i < n - 1; ++i) {
+        cin >> t;
+        b.push_back(t);
     }
 
-    int findSet(int i) { return (p[i] == i) ? i : (p[i] = findSet(p[i])); }
-
-    bool isSameSet(int i, int j) { return findSet(i) == findSet(j); }
-
-    void unionSet(int i, int j) {
-        if (i == j) return;
-
-        int x = findSet(i);
-        if (i != x) { // nếu i không xuất hiện trong array hiện tại, nó là con của x.
-            return;
+    vector<long long int> everyBound;
+    if (a[0] > b[0]) swap(a[0], b[0]);
+    long long int maxOfEveryBound = (b[0] - a[0]) + 2 + cb[1] - ca[1];
+    everyBound.push_back(maxOfEveryBound);
+    for (int i = 1; i + 1 < n; ++i) {
+        if (a[i] > b[i]) swap(a[i], b[i]);
+        if (a[i] == b[i]) {
+            maxOfEveryBound = 2 + cb[i + 1] - ca[i + 1];
+            everyBound.push_back(maxOfEveryBound);
+            continue;
         }
-        p[x] = j;
-        p[j] = j;
-//        rank[j] = rank[x]++;
+        maxOfEveryBound = max(maxOfEveryBound - (b[i] - a[i]) + 2 + cb[i + 1] - ca[i + 1],
+                              b[i] - a[i] + 2 + cb[i + 1] - ca[i + 1]);
+        everyBound.push_back(maxOfEveryBound);
     }
-};
+    everyBound.push_back(maxOfEveryBound);
+    db(everyBound);
+    cout << *max_element(everyBound.begin(), everyBound.end()) << "\n";
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
-    cin.tie();
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
     int t;
     cin >> t;
-    int test = 1;
     while (t > 0) {
-        UnionFind UF(100001); // create 100001 disjoint sets
-        cout << "Case " << test << ":" << "\n";
-
-        int n, q;
-        cin >> n >> q;
-        vi a;
-        vi b;
-        for (int i = 1; i < n + 1; ++i) {
-            int x;
-            cin >> x;
-            a.emplace_back(x);
-        }
-        db(a);
-        for (int i = 0; i < q; ++i) {
-            int type;
-            cin >> type;
-            if (type == 2) {
-                int index;
-                cin >> index;
-                cout << UF.findSet(a[index - 1]) << "\n";
-                db(index, UF.findSet(a[index - 1]));
-            } else {
-                int x, y;
-                cin >> x >> y;
-                UF.unionSet(x, y);
-                db(x, "->", y);
-                b = vi();
-                for (int i = 1; i < n + 1; ++i) {
-                    b.emplace_back(UF.findSet(a[i - 1]));
-                }
-                db(b);
-
-            };
-        }
+        runcase();
         t--;
     }
     return 0;
