@@ -1,4 +1,10 @@
 #include <bits/stdc++.h>
+
+#define REP(i, a) for(int i=0,_a=(a); i<_a; i++)
+
+using namespace std;
+
+#include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -33,7 +39,6 @@ typedef vector<int> vi;
 typedef vector<pi> vii;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
-const int INF = (int) 2e9 + 22011995;
 const ll LINF = (ll) 9e18 + 22011995;
 const ld PI = acos((ld) -1);
 const ld EPS = 1e-6;
@@ -153,89 +158,105 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-struct Tree_t {
-    vector<int> events;
-    vector<int> sta; // start mapping
-    vector<int> lev; // depth
-    vector<int> tin; // time in
-    vector<int> tou; // time out
-    vector<int> idx; // index
-    vector<vector<int>> par; // parent
-    int timer;
-    vector<vector<int>> f;
-    vector<int> mlg;
+const int INF = 1000000000;
+struct Edge {
+    int a, b, cap, flow;
+};
 
-    void dfs(int u, int p, const vector<vector<int>> &adj) {
-        idx[tin[u] = timer++] = u;
-        sta[u] = events.size();
-        events.push_back(tin[u]);
-        for (int i = 1; i < (int) par.size(); i++) {
-            par[i][u] = par[i - 1][par[i - 1][u]];
+struct MaxFlow {
+    int n, s, t;
+    vector<int> d, ptr, q;
+    vector<Edge> e;
+    vector<vector<int> > g;
+
+    MaxFlow(int n) : n(n), d(n), ptr(n), q(n), g(n) {
+        e.clear();
+        REP(i, n) {
+            g[i].clear();
+            ptr[i] = 0;
         }
-        for (int i = 0; i < adj[u].size(); i++) {
-            int v = adj[u][i];
-            if (v != p) {
-                lev[v] = lev[u] + 1;
-                par[0][v] = u;
-                dfs(v, u, adj);
-                events.push_back(tin[u]);
+    }
+
+    void addEdge(int a, int b, int cap) {
+        Edge e1 = {a, b, cap, 0};
+        Edge e2 = {b, a, 0, 0};
+        g[a].push_back((int) e.size());
+        e.push_back(e1);
+        g[b].push_back((int) e.size());
+        e.push_back(e2);
+    }
+
+    int getMaxFlow(int _s, int _t) {
+        s = _s;
+        t = _t;
+        int flow = 0;
+        for (;;) {
+            if (!bfs()) break;
+            REP(i, n) ptr[i] = 0;
+            while (int pushed = dfs(s, INF))
+                flow += pushed;
+        }
+        return flow;
+    }
+
+private:
+    bool bfs() {
+        int qh = 0, qt = 0;
+        q[qt++] = s;
+        REP(i, n) d[i] = -1;
+        d[s] = 0;
+
+        while (qh < qt && d[t] == -1) {
+            int v = q[qh++];
+            REP(i, g[v].size()) {
+                int id = g[v][i], to = e[id].b;
+                if (d[to] == -1 && e[id].flow < e[id].cap) {
+                    q[qt++] = to;
+                    d[to] = d[v] + 1;
+                }
             }
         }
-        tou[u] = timer - 1;
+        return d[t] != -1;
     }
 
-    void build(const vector<vector<int>> &adj, int rt = 0) {
-        events.clear();
-        sta.resize(adj.size());
-        lev.resize(adj.size());
-        tin.resize(adj.size());
-        tou.resize(adj.size());
-        idx.resize(adj.size());
-        par.resize(__lg(adj.size()) + 1);
-        for (int i = 0; i < (int) par.size(); i++) {
-            par[i].resize(adj.size());
-            par[i][rt] = rt;
-        }
-        timer = lev[rt] = 0, dfs(rt, -1, adj);
-        int logn = __lg(events.size()) + 1;
-        f.resize(logn);
-        for (int i = 0; i < logn; i++) {
-            f[i].resize(events.size());
-        }
-        for (int i = 0; i < events.size(); i++) {
-            f[0][i] = events[i];
-        }
-        for (int i = 1; i < logn; i++) {
-            for (int j = 0; j + (1 << i - 1) < events.size(); j++) {
-                f[i][j] = min(f[i - 1][j], f[i - 1][j + (1 << i - 1)]);
+    int dfs(int v, int flow) {
+        if (!flow) return 0;
+        if (v == t) return flow;
+        for (; ptr[v] < (int) g[v].size(); ++ptr[v]) {
+            int id = g[v][ptr[v]],
+                    to = e[id].b;
+            if (d[to] != d[v] + 1) continue;
+            int pushed = dfs(to, min(flow, e[id].cap - e[id].flow));
+            if (pushed) {
+                e[id].flow += pushed;
+                e[id ^ 1].flow -= pushed;
+                return pushed;
             }
         }
-        mlg.resize(events.size());
-        for (int i = 1; i < mlg.size(); i++) {
-            mlg[i] = __lg(i);
-        }
-    }
-
-    int rmq(int u, int v) {
-        int l = u == v ? 0 : mlg[v - u];
-        return min(f[l][u], f[l][v - (1 << l) + 1]);
-    }
-
-    int lca(int u, int v) {
-        if (sta[u] > sta[v]) swap(u, v);
-        return idx[rmq(sta[u], sta[v])];
+        return 0;
     }
 };
 
+
 int main() {
-    Tree_t myTree;
-    vector<vector<int>> adjMatrix(3);
-    adjMatrix[1].emplace_back(0);
-    adjMatrix[0].emplace_back(1);
-    adjMatrix[0].emplace_back(2);
-    adjMatrix[2].emplace_back(0);
-    db(adjMatrix);
-    myTree.build(adjMatrix, 1);
-    db(myTree.lca(0, 1));
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    MaxFlow MF(6);
+    MF.addEdge(0, 1, 16);
+    MF.addEdge(0, 2, 13);
+    MF.addEdge(2, 1, 4);
+    MF.addEdge(1, 3, 12);
+    MF.addEdge(2, 4, 14);
+    MF.addEdge(3, 2, 9);
+    MF.addEdge(4, 3, 7);
+    MF.addEdge(3, 5, 20);
+    MF.addEdge(4, 5, 4);
+
+    db(MF.getMaxFlow(0, 5));
+    cerr << "\nTime elapsed: " << 1000 * clock() / CLOCKS_PER_SEC << "ms\n";
     return 0;
 }
+
+

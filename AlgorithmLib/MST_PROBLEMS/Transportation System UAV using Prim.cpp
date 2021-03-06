@@ -1,9 +1,13 @@
+//
+// Created by alex on 04/02/2021.
+//
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
 #include <vector>
 #include <iomanip>
 #include <string>
+#include <bitset>
 
 using namespace std;
 //#pragma GCC optimize("Ofast")
@@ -28,9 +32,11 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 typedef long double ld;
-typedef pair<int, int> pi;
+typedef pair<int, int> pii;
 typedef vector<int> vi;
-typedef vector<pi> vii;
+typedef vector<pii> vpii;
+typedef pair<ll, ll> pll;
+typedef vector<pair<ll, ll>> vpll;
 const int MOD = (int) 1e9 + 7;
 const int FFTMOD = 119 << 23 | 1;
 const int INF = (int) 2e9 + 22011995;
@@ -153,89 +159,91 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-struct Tree_t {
-    vector<int> events;
-    vector<int> sta; // start mapping
-    vector<int> lev; // depth
-    vector<int> tin; // time in
-    vector<int> tou; // time out
-    vector<int> idx; // index
-    vector<vector<int>> par; // parent
-    int timer;
-    vector<vector<int>> f;
-    vector<int> mlg;
 
-    void dfs(int u, int p, const vector<vector<int>> &adj) {
-        idx[tin[u] = timer++] = u;
-        sta[u] = events.size();
-        events.push_back(tin[u]);
-        for (int i = 1; i < (int) par.size(); i++) {
-            par[i][u] = par[i - 1][par[i - 1][u]];
-        }
-        for (int i = 0; i < adj[u].size(); i++) {
-            int v = adj[u][i];
-            if (v != p) {
-                lev[v] = lev[u] + 1;
-                par[0][v] = u;
-                dfs(v, u, adj);
-                events.push_back(tin[u]);
-            }
-        }
-        tou[u] = timer - 1;
-    }
+double roadLength, railLength;
+const int MAX = 1e4 + 5;
+typedef pair<double, int> PII;
+bool marked[MAX];
 
-    void build(const vector<vector<int>> &adj, int rt = 0) {
-        events.clear();
-        sta.resize(adj.size());
-        lev.resize(adj.size());
-        tin.resize(adj.size());
-        tou.resize(adj.size());
-        idx.resize(adj.size());
-        par.resize(__lg(adj.size()) + 1);
-        for (int i = 0; i < (int) par.size(); i++) {
-            par[i].resize(adj.size());
-            par[i][rt] = rt;
-        }
-        timer = lev[rt] = 0, dfs(rt, -1, adj);
-        int logn = __lg(events.size()) + 1;
-        f.resize(logn);
-        for (int i = 0; i < logn; i++) {
-            f[i].resize(events.size());
-        }
-        for (int i = 0; i < events.size(); i++) {
-            f[0][i] = events[i];
-        }
-        for (int i = 1; i < logn; i++) {
-            for (int j = 0; j + (1 << i - 1) < events.size(); j++) {
-                f[i][j] = min(f[i - 1][j], f[i - 1][j + (1 << i - 1)]);
-            }
-        }
-        mlg.resize(events.size());
-        for (int i = 1; i < mlg.size(); i++) {
-            mlg[i] = __lg(i);
-        }
-    }
-
-    int rmq(int u, int v) {
-        int l = u == v ? 0 : mlg[v - u];
-        return min(f[l][u], f[l][v - (1 << l) + 1]);
-    }
-
-    int lca(int u, int v) {
-        if (sta[u] > sta[v]) swap(u, v);
-        return idx[rmq(sta[u], sta[v])];
-    }
-};
 
 int main() {
-    Tree_t myTree;
-    vector<vector<int>> adjMatrix(3);
-    adjMatrix[1].emplace_back(0);
-    adjMatrix[0].emplace_back(1);
-    adjMatrix[0].emplace_back(2);
-    adjMatrix[2].emplace_back(0);
-    db(adjMatrix);
-    myTree.build(adjMatrix, 1);
-    db(myTree.lca(0, 1));
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    db("Hello");
+    int t;
+    cin >> t;
+    for (int i = 1; i <= t; ++i) {
+        for (int j = 0; j < MAX; ++j) {
+            marked[j] = false;
+        }
+        vector<PII> adj[MAX];
+        int V, r;
+        cin >> V >> r;
+        vector<pair<int, pii>> Vertex;
+        for (int j = 0; j < V; ++j) {
+            int x, y;
+            cin >> x >> y;  // Tọa độ
+            Vertex.push_back({j, {x, y}}); // Id, tọa độ
+        }
+        for (int j = 0; j < V; ++j) {
+            for (int k = 0; k < V; ++k) {
+                if (Vertex[j].first == Vertex[k].first) continue; //  2 đỉnh trùng
+                int u = Vertex[j].first;
+                int v = Vertex[k].first;
+                int xu = Vertex[j].second.first;
+                int yu = Vertex[j].second.second;
+                int xv = Vertex[k].second.first;
+                int yv = Vertex[k].second.second;
+                double length = sqrt((xu - xv) * (xu - xv) + (yu - yv) * (yu - yv));
+                adj[u].emplace_back(length, v);
+                db(u, v, length);
+            }
+        }
+
+        roadLength = 0;
+        railLength = 0;
+        int numStates = 0;
+        priority_queue<PII, vector<PII>, greater<> > Q;
+        int y;
+
+        PII p;
+        int x = 0;
+        int count = 0;
+        Q.push(make_pair(0, x));
+        while (!Q.empty()) {
+            // Select the edge with minimum weight
+            p = Q.top();
+            Q.pop();
+            x = p.second;
+            // Checking for cycle
+            if (marked[x])
+                continue;
+            if (p.first <= r) {
+                roadLength += p.first;
+                db(p.first, x);
+            } else {
+                railLength += p.first;
+                numStates++;
+            }
+            marked[x] = true;
+            count++;
+            for (auto &edge : adj[x]) {
+                y = edge.second;
+                if (!marked[y])
+                    Q.push(edge);
+            }
+            if (count == V) break;
+        }
+        numStates++;
+        cout << "Case #" << i << ": " << numStates << " " << round(roadLength) << " "
+             << round(railLength) << "\n";
+    }
     return 0;
 }
+
+
+
+// https://codeforces.com/problemset/problem/1081/D

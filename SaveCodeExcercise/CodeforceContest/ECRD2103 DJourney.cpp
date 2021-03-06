@@ -1,3 +1,7 @@
+//
+// Created by alex on 31/01/2021.
+// https://codeforces.com/contest/1476/problem/D
+
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -39,26 +43,40 @@ public:
             setSize[y] += setSize[x];
         }
         --numSets;                                   // a union reduces numSets
+
     }
 };
 
-int main() {
-    printf("Assume that there are 5 disjoint sets initially\n");
-    UnionFind UF(5); // create 5 disjoint sets
-    printf("%d\n", UF.numDisjointSets()); // 5
-    UF.unionSet(0, 1);
-    printf("%d\n", UF.numDisjointSets()); // 4
-    UF.unionSet(2, 3);
-    printf("%d\n", UF.numDisjointSets()); // 3
-    UF.unionSet(4, 3);
-    printf("%d\n", UF.numDisjointSets()); // 2
-    printf("isSameSet(0, 3) = %d\n", UF.isSameSet(0, 3)); // will return 0 (false)
-    printf("isSameSet(4, 3) = %d\n", UF.isSameSet(4, 3)); // will return 1 (true)
-    for (int i = 0; i < 5; i++) // findSet will return 1 for {0, 1} and 3 for {2, 3, 4}
-        printf("findSet(%d) = %d, sizeOfSet(%d) = %d\n", i, UF.findSet(i), i, UF.sizeOfSet(i));
-    UF.unionSet(0, 3);
-    printf("%d\n", UF.numDisjointSets()); // 1
-    for (int i = 0; i < 5; i++) // findSet will return 3 for {0, 1, 2, 3, 4}
-        printf("findSet(%d) = %d, sizeOfSet(%d) = %d\n", i, UF.findSet(i), i, UF.sizeOfSet(i));
-    return 0;
+void runcase() {
+
+    int n;
+    cin >> n;
+    UnionFind UF(2 * n + 2);
+    string s;
+    cin >> s;
+    for (int i = 0; i < s.size(); ++i) {
+        if (s[i] == 'L') {
+            UF.unionSet((n + 1) + i, i + 1);
+        } else {
+            UF.unionSet(i, (n + 1) + i + 1);
+        }
+    }
+    for (int i = 0; i <= n; ++i) {
+        cout << UF.sizeOfSet(i) << " ";
+    }
+    cout << "\n";
 }
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    int t;
+    cin >> t;
+    while (t--) {
+        runcase();
+    }
+}
+

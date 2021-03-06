@@ -1,3 +1,7 @@
+//
+// Created by alex on 01/02/2021.
+//
+
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
@@ -153,89 +157,61 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-struct Tree_t {
-    vector<int> events;
-    vector<int> sta; // start mapping
-    vector<int> lev; // depth
-    vector<int> tin; // time in
-    vector<int> tou; // time out
-    vector<int> idx; // index
-    vector<vector<int>> par; // parent
-    int timer;
-    vector<vector<int>> f;
-    vector<int> mlg;
+using u64 = uint64_t;
+using u128 = __uint128_t;
 
-    void dfs(int u, int p, const vector<vector<int>> &adj) {
-        idx[tin[u] = timer++] = u;
-        sta[u] = events.size();
-        events.push_back(tin[u]);
-        for (int i = 1; i < (int) par.size(); i++) {
-            par[i][u] = par[i - 1][par[i - 1][u]];
-        }
-        for (int i = 0; i < adj[u].size(); i++) {
-            int v = adj[u][i];
-            if (v != p) {
-                lev[v] = lev[u] + 1;
-                par[0][v] = u;
-                dfs(v, u, adj);
-                events.push_back(tin[u]);
-            }
-        }
-        tou[u] = timer - 1;
+u64 binpower(u64 base, u64 e, u64 mod) {
+    u64 result = 1;
+    base %= mod;
+    while (e) {
+        if (e & 1)
+            result = (u128) result * base % mod;
+        base = (u128) base * base % mod;
+        e >>= 1;
     }
+    return result;
+}
 
-    void build(const vector<vector<int>> &adj, int rt = 0) {
-        events.clear();
-        sta.resize(adj.size());
-        lev.resize(adj.size());
-        tin.resize(adj.size());
-        tou.resize(adj.size());
-        idx.resize(adj.size());
-        par.resize(__lg(adj.size()) + 1);
-        for (int i = 0; i < (int) par.size(); i++) {
-            par[i].resize(adj.size());
-            par[i][rt] = rt;
-        }
-        timer = lev[rt] = 0, dfs(rt, -1, adj);
-        int logn = __lg(events.size()) + 1;
-        f.resize(logn);
-        for (int i = 0; i < logn; i++) {
-            f[i].resize(events.size());
-        }
-        for (int i = 0; i < events.size(); i++) {
-            f[0][i] = events[i];
-        }
-        for (int i = 1; i < logn; i++) {
-            for (int j = 0; j + (1 << i - 1) < events.size(); j++) {
-                f[i][j] = min(f[i - 1][j], f[i - 1][j + (1 << i - 1)]);
-            }
-        }
-        mlg.resize(events.size());
-        for (int i = 1; i < mlg.size(); i++) {
-            mlg[i] = __lg(i);
-        }
+bool check_composite(u64 n, u64 a, u64 d, int s) {
+    u64 x = binpower(a, d, n);
+    if (x == 1 || x == n - 1)
+        return false;
+    for (int r = 1; r < s; r++) {
+        x = (u128) x * x % n;
+        if (x == n - 1)
+            return false;
     }
-
-    int rmq(int u, int v) {
-        int l = u == v ? 0 : mlg[v - u];
-        return min(f[l][u], f[l][v - (1 << l) + 1]);
-    }
-
-    int lca(int u, int v) {
-        if (sta[u] > sta[v]) swap(u, v);
-        return idx[rmq(sta[u], sta[v])];
-    }
+    return true;
 };
 
+bool MillerRabin(u64 n) { // returns true if n is prime, else returns false.
+    if (n < 2)
+        return false;
+
+    int r = 0;
+    u64 d = n - 1;
+    while ((d & 1) == 0) {
+        d >>= 1;
+        r++;
+    }
+
+    for (int a : {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}) {
+        if (n == a)
+            return true;
+        if (check_composite(n, a, d, r))
+            return false;
+    }
+    return true;
+}
+
 int main() {
-    Tree_t myTree;
-    vector<vector<int>> adjMatrix(3);
-    adjMatrix[1].emplace_back(0);
-    adjMatrix[0].emplace_back(1);
-    adjMatrix[0].emplace_back(2);
-    adjMatrix[2].emplace_back(0);
-    db(adjMatrix);
-    myTree.build(adjMatrix, 1);
-    db(myTree.lca(0, 1));
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    for (int i = 0; i < 100; ++i) {
+        db(i, MillerRabin(i));
+    }
     return 0;
 }

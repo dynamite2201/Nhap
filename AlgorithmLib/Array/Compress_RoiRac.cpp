@@ -153,89 +153,118 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-struct Tree_t {
-    vector<int> events;
-    vector<int> sta; // start mapping
-    vector<int> lev; // depth
-    vector<int> tin; // time in
-    vector<int> tou; // time out
-    vector<int> idx; // index
-    vector<vector<int>> par; // parent
-    int timer;
-    vector<vector<int>> f;
-    vector<int> mlg;
 
-    void dfs(int u, int p, const vector<vector<int>> &adj) {
-        idx[tin[u] = timer++] = u;
-        sta[u] = events.size();
-        events.push_back(tin[u]);
-        for (int i = 1; i < (int) par.size(); i++) {
-            par[i][u] = par[i - 1][par[i - 1][u]];
+int convert(vector<int> &arr, int x) {
+    return (lower_bound(arr.begin(), arr.end(), x) - arr.begin());
+}
+
+vector<pair<int, int>> countOccurrences(vector<int> &arr) {
+    vector<pair<int, int>> cntcnt;
+    for (int i = 0; i < arr.size(); ++i) {
+        int temp2 = arr[i];
+        int index2 = i;
+        int count2 = 0;
+        while (temp2 == arr[index2] && index2 < arr.size()) {
+            count2++;
+            index2++;
         }
-        for (int i = 0; i < adj[u].size(); i++) {
-            int v = adj[u][i];
-            if (v != p) {
-                lev[v] = lev[u] + 1;
-                par[0][v] = u;
-                dfs(v, u, adj);
-                events.push_back(tin[u]);
-            }
-        }
-        tou[u] = timer - 1;
+        cntcnt.emplace_back(temp2, count2);
+        i = index2 - 1;
+    }
+    return cntcnt;
+}
+
+void runcase() {
+    int n;
+    cin >> n;
+    vector<int> arr(n);
+    for (int i = 0; i < n; ++i) {
+        cin >> arr[i];
+    }
+    vector<int> temp = arr;
+    vector<int> temp2 = arr;
+    sort(temp.begin(), temp.end());
+    temp.resize(unique(temp.begin(), temp.end()) - temp.begin());
+    for (int i = 0; i < n; ++i) {
+        arr[i] = convert(temp, arr[i]);
     }
 
-    void build(const vector<vector<int>> &adj, int rt = 0) {
-        events.clear();
-        sta.resize(adj.size());
-        lev.resize(adj.size());
-        tin.resize(adj.size());
-        tou.resize(adj.size());
-        idx.resize(adj.size());
-        par.resize(__lg(adj.size()) + 1);
-        for (int i = 0; i < (int) par.size(); i++) {
-            par[i].resize(adj.size());
-            par[i][rt] = rt;
-        }
-        timer = lev[rt] = 0, dfs(rt, -1, adj);
-        int logn = __lg(events.size()) + 1;
-        f.resize(logn);
-        for (int i = 0; i < logn; i++) {
-            f[i].resize(events.size());
-        }
-        for (int i = 0; i < events.size(); i++) {
-            f[0][i] = events[i];
-        }
-        for (int i = 1; i < logn; i++) {
-            for (int j = 0; j + (1 << i - 1) < events.size(); j++) {
-                f[i][j] = min(f[i - 1][j], f[i - 1][j + (1 << i - 1)]);
-            }
-        }
-        mlg.resize(events.size());
-        for (int i = 1; i < mlg.size(); i++) {
-            mlg[i] = __lg(i);
+    sort(arr.begin(), arr.end());
+    vector<int> arr2 = arr;
+    arr.resize(unique(arr.begin(), arr.end()) - arr.begin());
+    db(temp2); // day ban dau
+    db(arr2); // day ban dau roi rac hoa
+    db(temp); // day nen
+    db(arr); // day nen roi rac hoa, luon co dang 0,1,2,3,4....
+    map<int, ll> myMap;
+    for (int i = 0; i < arr.size(); ++i) {
+        myMap[i] = temp[i];
+    }
+    db(myMap);
+    vector<pair<int, int>> cntOcc = countOccurrences(arr2);
+    sort(cntOcc.begin(), cntOcc.end());
+    db(cntOcc);
+    map<int, ll> mySumMap;
+    for (int i = 0; i < arr.size(); ++i) {
+        mySumMap[i] = myMap[i] * cntOcc[i].second;
+    }
+    db(mySumMap);
+    vector<long long int> prefixSum(arr.size());
+    for (int i = 0; i < arr.size(); ++i) {
+        prefixSum[i] = mySumMap[i];
+    }
+
+    vector<long long int> originalPrefixSum = prefixSum;
+    for (int i = 0; i < arr.size() - 1; ++i) {
+        prefixSum[i + 1] += prefixSum[i];
+    }
+    db(originalPrefixSum);
+    db(prefixSum);
+    db(arr.size());
+    vector<long long int> good;
+    good.push_back(temp[arr.size() - 1]);
+    for (int i = arr.size() - 2; i >= 0; i--) {
+        if (prefixSum[i] >= temp[i + 1]) {
+            good.push_back(temp[i]);
+        } else {
+            break;
         }
     }
 
-    int rmq(int u, int v) {
-        int l = u == v ? 0 : mlg[v - u];
-        return min(f[l][u], f[l][v - (1 << l) + 1]);
+    sort(good.begin(), good.end());
+    db(good);
+    vector<int> goodIndex;
+    vector<pair<int, int>> arrAndIndex;
+    for (int i = 0; i < temp2.size(); ++i) {
+        arrAndIndex.emplace_back(temp2[i], i);
     }
-
-    int lca(int u, int v) {
-        if (sta[u] > sta[v]) swap(u, v);
-        return idx[rmq(sta[u], sta[v])];
+    sort(arrAndIndex.begin(), arrAndIndex.end());
+    db(arrAndIndex);
+    int index = 0;
+    for (int i = 0; i < arrAndIndex.size(); ++i) {
+        if (arrAndIndex[i].first > good[index]) index++;
+        if (arrAndIndex[i].first == good[index]) {
+            goodIndex.push_back(arrAndIndex[i].second);
+        }
     }
-};
+    db(goodIndex);
+    sort(goodIndex.begin(), goodIndex.end());
+    cout << goodIndex.size() << "\n";
+    for (int i = 0; i < goodIndex.size(); ++i) {
+        cout << goodIndex[i] + 1 << " ";
+    }
+    cout << "\n";
+}
 
 int main() {
-    Tree_t myTree;
-    vector<vector<int>> adjMatrix(3);
-    adjMatrix[1].emplace_back(0);
-    adjMatrix[0].emplace_back(1);
-    adjMatrix[0].emplace_back(2);
-    adjMatrix[2].emplace_back(0);
-    db(adjMatrix);
-    myTree.build(adjMatrix, 1);
-    db(myTree.lca(0, 1));
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+//    freopen("input.txt", "r", stdin);
+//    freopen("output.txt", "w", stdout);
+    int t;
+    cin >> t;
+    while (t--) {
+        runcase();
+    }
     return 0;
 }

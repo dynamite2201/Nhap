@@ -1,3 +1,7 @@
+//
+// Created by alex on 19/02/2021.
+//
+
 #include <bits/stdc++.h>
 #include <cmath>
 #include <algorithm>
@@ -153,89 +157,134 @@ void _print(T t, V... v) {
 #define db(x...)
 #endif
 
-struct Tree_t {
-    vector<int> events;
-    vector<int> sta; // start mapping
-    vector<int> lev; // depth
-    vector<int> tin; // time in
-    vector<int> tou; // time out
-    vector<int> idx; // index
-    vector<vector<int>> par; // parent
-    int timer;
-    vector<vector<int>> f;
-    vector<int> mlg;
 
-    void dfs(int u, int p, const vector<vector<int>> &adj) {
-        idx[tin[u] = timer++] = u;
-        sta[u] = events.size();
-        events.push_back(tin[u]);
-        for (int i = 1; i < (int) par.size(); i++) {
-            par[i][u] = par[i - 1][par[i - 1][u]];
-        }
-        for (int i = 0; i < adj[u].size(); i++) {
-            int v = adj[u][i];
-            if (v != p) {
-                lev[v] = lev[u] + 1;
-                par[0][v] = u;
-                dfs(v, u, adj);
-                events.push_back(tin[u]);
-            }
-        }
-        tou[u] = timer - 1;
+class UnionFind {
+private:
+    vi p, rank, setSize;
+    int numSets;
+public:
+    explicit UnionFind(int N) {
+        p.assign(N + 1, 0);
+        for (int i = 1; i <= N; ++i) p[i] = i;
+        rank.assign(N + 1, 0);
+        setSize.assign(N + 1, 1);
+        numSets = N;
     }
 
-    void build(const vector<vector<int>> &adj, int rt = 0) {
-        events.clear();
-        sta.resize(adj.size());
-        lev.resize(adj.size());
-        tin.resize(adj.size());
-        tou.resize(adj.size());
-        idx.resize(adj.size());
-        par.resize(__lg(adj.size()) + 1);
-        for (int i = 0; i < (int) par.size(); i++) {
-            par[i].resize(adj.size());
-            par[i][rt] = rt;
-        }
-        timer = lev[rt] = 0, dfs(rt, -1, adj);
-        int logn = __lg(events.size()) + 1;
-        f.resize(logn);
-        for (int i = 0; i < logn; i++) {
-            f[i].resize(events.size());
-        }
-        for (int i = 0; i < events.size(); i++) {
-            f[0][i] = events[i];
-        }
-        for (int i = 1; i < logn; i++) {
-            for (int j = 0; j + (1 << i - 1) < events.size(); j++) {
-                f[i][j] = min(f[i - 1][j], f[i - 1][j + (1 << i - 1)]);
-            }
-        }
-        mlg.resize(events.size());
-        for (int i = 1; i < mlg.size(); i++) {
-            mlg[i] = __lg(i);
-        }
+    int findSet(int i) { return (p[i] == i) ? i : (p[i] = findSet(p[i])); }
+
+    bool isSameSet(int i, int j) { return findSet(i) == findSet(j); }
+
+    void unionSet(int i, int j) {
+        if (isSameSet(i, j)) return;
+        int x = findSet(i), y = findSet(j);
+        if (rank[x] > rank[y]) swap(x, y);
+        p[x] = y;
+        if (rank[x] == rank[y]) ++rank[y];
+        setSize[y] += setSize[x];
+        --numSets;
     }
 
-    int rmq(int u, int v) {
-        int l = u == v ? 0 : mlg[v - u];
-        return min(f[l][u], f[l][v - (1 << l) + 1]);
-    }
+    int numDisjointSets() const { return numSets; }
 
-    int lca(int u, int v) {
-        if (sta[u] > sta[v]) swap(u, v);
-        return idx[rmq(sta[u], sta[v])];
-    }
+    int sizeOfSet(int i) { return setSize[findSet(i)]; }
 };
 
 int main() {
-    Tree_t myTree;
-    vector<vector<int>> adjMatrix(3);
-    adjMatrix[1].emplace_back(0);
-    adjMatrix[0].emplace_back(1);
-    adjMatrix[0].emplace_back(2);
-    adjMatrix[2].emplace_back(0);
-    db(adjMatrix);
-    myTree.build(adjMatrix, 1);
-    db(myTree.lca(0, 1));
+    cin.tie(nullptr);
+    cout.tie(nullptr);
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    int V, E, D;
+    cin >> V >> E >> D;
+    vector<pi> EL(E);
+    vector<pi> ST;
+    vector<pi> ST2;
+    set<int> mySet;
+    int degreeOfFirst = 0;
+    for (int i = 0; i < E; ++i) {
+        int u, v;
+        cin >> u >> v;
+        if (u == 1) {
+            degreeOfFirst++;
+        }
+        if (v == 1) {
+            degreeOfFirst++;
+        }
+        if (u > v) swap(u, v);
+        EL[i] = {u, v};
+    }
+    db(D, degreeOfFirst);
+    if (D > degreeOfFirst) {
+        cout << "NO";
+        return 0;
+    } else {
+        sort(EL.begin(), EL.end());
+        db(EL);
+        int num_taken = 0;
+        UnionFind UF(V);
+        for (int i = 0; i < E; ++i) {
+            auto[u, v] = EL[i];
+            if (u == 1) continue;
+            if (UF.isSameSet(u, v)) continue;
+            UF.unionSet(u, v);
+            ST.emplace_back(u, v);
+            ++num_taken;
+            if (num_taken == V - 1) break;
+        }
+        db(ST);
+        int numSets = UF.numDisjointSets() - 1;
+        db(numSets);
+        UnionFind UF2(V);
+        int num_taken2 = 0;
+        if (numSets > D) {
+            cout << "NO";
+        } else {
+            for (int i = 0; i < E; ++i) {
+                auto[u, v] = EL[i];
+                if (u != 1) continue;
+                db(u, v);
+                int k = UF.findSet(v);
+                db(k);
+                int temp = mySet.size();
+                mySet.insert(k);
+                if (mySet.size() == temp + 1) {
+                    UF2.unionSet(1, v);
+                    ST2.emplace_back(1, v);
+                    D--;
+                    num_taken2++;
+                }
+                if (num_taken2 == V - 1) break;
+                if (D <= 0) continue;
+            }
+            db(mySet);
+            db(ST2);
+            db(D);
+            for (int i = 0; i < E; ++i) {
+                auto[u, v] = EL[i];
+                db(u, v);
+                if (UF2.isSameSet(u, v)) continue;
+                if (u == 1 && D == 0) continue;
+                if (u == 1 && D > 0) D--;
+                db(u, v);
+                UF2.unionSet(u, v);
+                ST2.emplace_back(u, v);
+                ++num_taken2;
+                if (num_taken2 == V - 1) break;
+            }
+            db(num_taken);
+            db(D);
+            if (D == 0 and num_taken2 == V - 1) {
+                cout << "YES" << "\n";
+                for (auto &e: ST2) {
+                    cout << e.first << " " << e.second << "\n";
+                }
+            } else {
+                cout << "NO";
+            }
+        }
+    }
     return 0;
 }
+
+// https://codeforces.com/contest/1133/problem/F2
